@@ -15,10 +15,10 @@ jobs:
 
       - name: Deploy to EC2
         env:
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}
+          HOST: ${{ secrets.HOST_DNS }}
+          USER: ${{ secrets.USERNAME }}
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          APP_DIR: ${{ secrets.APP_DIR }}
+          APP_DIR: ${{ secrets.TARGET_DIR }}
         run: |
           echo "$SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
