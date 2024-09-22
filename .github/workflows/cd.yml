@@ -13,16 +13,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.1.7
 
-      - name: Deploy to EC2
-        env:
-          HOST: ${{ secrets.HOST_DNS }}
-          USER: ${{ secrets.USERNAME }}
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          APP_DIR: ${{ secrets.TARGET_DIR }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.EC2_SSH_KEY }}
+          name: id_rsa  # The default name for the SSH key
+          known_hosts: ${{ secrets.HOST_DNS }} # This ensures the server is trusted
+
+      - name: Copy app to EC2 instance
         run: |
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* $USER@$HOST:$APP_DIR
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $USER@$HOST << 'EOF'
-          rm private_key.pem
-      
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }}:/home/${{ secrets.USERNAME }}/app/
+
+      - name: Install dependencies and restart FastAPI service
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} << 'EOF'
+            cd /home/${{ secrets.USERNAME }}/app/
+            
+            # Ensure virtual environment or dependencies
+            if [ ! -d "venv" ]; then
+              python3 -m venv .venv
+            fi
+            source .venv/bin/activate
+            pip install -r requirements.txt
+
+            # Restart FastAPI app (assumes Gunicorn or uvicorn setup)
+            sudo systemctl restart fastapi  # Modify based on your app service name
+          EOF
