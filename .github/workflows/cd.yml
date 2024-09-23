@@ -35,6 +35,10 @@ jobs:
             fi
             source .venv/bin/activate
             pip install -r requirements.txt
+          
+            echo ${{ secrets.DB_PASSWORD }} >> .env
+            echo ${{ secrets.DB_USER }} >> .env
+            echo "DB_NAME=eurodental" >> .env
 
             # Restart FastAPI app (assumes Gunicorn or uvicorn setup)
             sudo systemctl restart fastapi  # Modify based on your app service name
