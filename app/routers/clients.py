@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 from app.db.dependencies import get_session
-from app.models.clients import ClientRead, Client, ClientCreate
+from app.models.clients import ClientRead, Client, ClientCreate, ClientUpdate
 
 router = APIRouter(
     prefix="/clients",
@@ -28,7 +28,7 @@ async def create_client(*, session : Session = Depends(get_session),client : Cli
     return db_client
 
 @router.put("/{client_id}", response_model=ClientRead)
-async def update_client(*, session : Session = Depends(get_session), client: ClientCreate, client_id : int):
+async def update_client(*, session : Session = Depends(get_session), client: ClientUpdate, client_id : int):
     db_client = session.get(Client, client_id)
     if not db_client:
         raise HTTPException(status_code=404, detail="Client Not Found")

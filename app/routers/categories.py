@@ -1,10 +1,8 @@
-from sys import prefix
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 from app.db.dependencies import get_session
 from app.models.categories import CategoryRead, Category, CategoryCreate
-from app.routers.clients import router
+
 
 router = APIRouter(
     prefix="/categories",
