@@ -1,0 +1,44 @@
+name: CI_PACK
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v4.2.0
+
+     - name: Remove Tests Folder
+       run: rm -r /app/tests
+
+     - name: Setup Python Version 3.12.5
+       uses: actions/setup-python@v5.2.0
+       with:
+          python-version: "3.12.5"
+
+     - name: Update pip
+       run: python -m pip install --upgrade pip
+
+     - name: Install pyminifier
+       run: |
+         pip install pyminifier
+         pyminifier 
+
+     - name: Minify Python files
+       run: |
+         cd app
+         find . -name '*.py' -exec pyminifier --remove-literal-statements --remove-comments --remove-docstrings --obfuscate --in-place {} \;
+
+     - name: Zip the project
+       run: |
+         zip -r euro_dental_build.zip . -x "*.git* "*.zip"
+
+     - name: Upload a Build Artifact
+       uses: actions/upload-artifact@v3.2.1-node20
+       with:
+         name: euro_dental_build
+         path: euro_dental_build.zip
