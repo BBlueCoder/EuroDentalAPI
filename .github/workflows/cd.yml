@@ -54,11 +54,9 @@ jobs:
             fi
             source .venv/bin/activate
             pip install -r requirements.txt
-
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_NAME=eurodental" >> .env
-
-           sudo systemctl restart fastapi  
-           EOF
+            sudo systemctl restart fastapi
+          EOF
 
