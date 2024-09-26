@@ -13,7 +13,12 @@ jobs:
        uses: actions/checkout@v4.2.0
 
      - name: Remove Tests Folder
-       run: ls -a
+       run: rm -r app/tests
+
+     - name: Install dependencies
+       run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-distutils
 
      - name: Setup Python Version 3.12.5
        uses: actions/setup-python@v5.2.0
