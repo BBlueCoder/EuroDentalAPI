@@ -15,29 +15,6 @@ jobs:
      - name: Remove Tests Folder
        run: rm -r app/tests
 
-     - name: Install dependencies
-       run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-distutils
-
-     - name: Setup Python Version 3.12.5
-       uses: actions/setup-python@v5.2.0
-       with:
-          python-version: "3.12.5"
-
-     - name: Update pip
-       run: python -m pip install --upgrade pip
-
-     - name: Install pyminifier
-       run: |
-         pip install pyminifier
-         pyminifier 
-
-     - name: Minify Python files
-       run: |
-         cd app
-         find . -name '*.py' -exec pyminifier --remove-literal-statements --remove-comments --remove-docstrings --obfuscate --in-place {} \;
-
      - name: Zip the project
        run: |
          zip -r euro_dental_build.zip . -x "*.git* "*.zip"
