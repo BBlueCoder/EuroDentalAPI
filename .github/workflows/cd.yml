@@ -20,6 +20,7 @@ jobs:
           name: euro_dental_build
           path: euro_dental_build.zip
   deploy:
+    needs: pack
     runs-on: ubuntu-latest
     steps:
       - name: Download Project Zip
