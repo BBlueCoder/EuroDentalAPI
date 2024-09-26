@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.0
       - name: Remove Tests Folder
-        run: rm -r app/tests
+        run: rm -rf app/tests .git .github .idea
       - name: Zip the project
         run: |
           zip -r euro_dental_build.zip . 
@@ -30,5 +30,6 @@ jobs:
       - name: Unzip project
         run: |
           unzip euro_dental_build.zip
+          rm -f euro_dental_build.zip
           ls -a
 
