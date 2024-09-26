@@ -17,7 +17,7 @@ jobs:
 
      - name: Zip the project
        run: |
-         zip -r euro_dental_build.zip . -x "*.git* "*.zip"
+         zip -r euro_dental_build.zip . 
 
      - name: Upload a Build Artifact
        uses: actions/upload-artifact@v3.2.1-node20
