@@ -43,7 +43,7 @@ jobs:
           secrets.USERNAME }}@${{ secrets.HOST_DNS }}:/home/${{ secrets.USERNAME
           }}/app/EuroDentalAPI/
       - name: Install dependencies and restart FastAPI service
-        run: >
+        run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{
           secrets.HOST_DNS }} << 'EOF'
             cd /home/${{ secrets.USERNAME }}/app/EuroDentalAPI/
