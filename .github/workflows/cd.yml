@@ -31,5 +31,35 @@ jobs:
         run: |
           unzip euro_dental_build.zip
           rm -f euro_dental_build.zip
-          ls -a
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: '${{ secrets.EC2_SSH_KEY }}'
+          name: id_rsa
+          known_hosts: '${{ secrets.HOST_DNS }}'
+      - name: Copy app to EC2 instance
+        run: >
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ${{
+          secrets.USERNAME }}@${{ secrets.HOST_DNS }}:/home/${{ secrets.USERNAME
+          }}/app/EuroDentalAPI/
+      - name: Install dependencies and restart FastAPI service
+        run: >
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{
+          secrets.HOST_DNS }} << 'EOF'
+            cd /home/${{ secrets.USERNAME }}/app/EuroDentalAPI/
+           
+            # Ensure virtual environment or dependencies
+            if [ ! -d ".venv" ]; then
+              python3 -m venv .venv
+            fi
+            source .venv/bin/activate
+            pip install -r requirements.txt
+
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+            echo "DB_NAME=eurodental" >> .env
+
+           Restart FastAPI app (assumes Gunicorn or uvicorn setup)
+           sudo systemctl restart fastapi  
+           EOF
 
