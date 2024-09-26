@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Download Project Zip
-      - uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: euro_dental_build
 
