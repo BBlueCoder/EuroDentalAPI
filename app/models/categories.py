@@ -1,13 +1,16 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
+
 
 class CategoryBase(SQLModel):
-    category: str | None = Field(None, max_length=50, description="category name, up to 50 characters")
+    category: str | None = Field(
+        None, max_length=50, description="category name, up to 50 characters"
+    )
 
 
 class Category(CategoryBase, table=True):
     __tablename__ = "categories"
 
-    id: int | None = Field(None,primary_key=True)
+    id: int | None = Field(None, primary_key=True)
 
 
 class CategoryCreate(CategoryBase):

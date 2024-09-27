@@ -1,13 +1,11 @@
 from fastapi import FastAPI
-from .routers import clients,categories
 from fastapi.middleware.cors import CORSMiddleware
 
+from .routers import categories, clients, sub_categories
 
 app = FastAPI()
 
-origins = [
-    "*"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,9 +17,9 @@ app.add_middleware(
 
 app.include_router(clients.router)
 app.include_router(categories.router)
+app.include_router(sub_categories.router)
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello from server!"}
-
-

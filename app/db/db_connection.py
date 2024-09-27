@@ -1,4 +1,5 @@
 from sqlmodel import create_engine
+
 from app.core.config import db_settings
 
 db_name = db_settings.db_name
