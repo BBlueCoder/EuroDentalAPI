@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import categories, clients
+from .routers import categories, clients, sub_categories
 
 app = FastAPI()
 
@@ -17,6 +17,7 @@ app.add_middleware(
 
 app.include_router(clients.router)
 app.include_router(categories.router)
+app.include_router(sub_categories.router)
 
 
 @app.get("/")
