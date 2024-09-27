@@ -1,45 +1,62 @@
 name: Deploy app to EC2
-
-on:
+'on':
   push:
     branches:
       - master
-
 jobs:
-  deploy:
+  pack:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
-
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+      - name: Remove Tests Folder
+        run: rm -rf app/tests .git .github .idea
+      - name: Zip the project
+        run: |
+          zip -r euro_dental_build.zip . 
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: euro_dental_build
+          path: euro_dental_build.zip
+  deploy:
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Project Zip
+        uses: actions/download-artifact@v4
+        with:
+          name: euro_dental_build
+      - name: Unzip project
+        run: |
+          unzip euro_dental_build.zip
+          rm -f euro_dental_build.zip
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
-          key: ${{ secrets.EC2_SSH_KEY }}
-          name: id_rsa  # The default name for the SSH key
-          known_hosts: ${{ secrets.HOST_DNS }} # This ensures the server is trusted
-
+          key: '${{ secrets.EC2_SSH_KEY }}'
+          name: id_rsa
+          known_hosts: '${{ secrets.HOST_DNS }}'
       - name: Copy app to EC2 instance
-        run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }}:/home/${{ secrets.USERNAME }}/app/EuroDentalAPI/
-
+        run: >
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ${{
+          secrets.USERNAME }}@${{ secrets.HOST_DNS }}:/home/${{ secrets.USERNAME
+          }}/app/EuroDentalAPI/
       - name: Install dependencies and restart FastAPI service
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{
+          secrets.HOST_DNS }} << 'EOF'
             cd /home/${{ secrets.USERNAME }}/app/EuroDentalAPI/
-            
+           
             # Ensure virtual environment or dependencies
             if [ ! -d ".venv" ]; then
               python3 -m venv .venv
             fi
             source .venv/bin/activate
             pip install -r requirements.txt
-          
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_NAME=eurodental" >> .env
-
-            # Restart FastAPI app (assumes Gunicorn or uvicorn setup)
-            sudo systemctl restart fastapi  # Modify based on your app service name
+            sudo systemctl restart fastapi
           EOF
+

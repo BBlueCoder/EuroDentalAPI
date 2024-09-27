@@ -1,0 +1,26 @@
+name: CI_PACK
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v4.2.0
+
+     - name: Remove Tests Folder
+       run: rm -r app/tests
+
+     - name: Zip the project
+       run: |
+         zip -r euro_dental_build.zip . 
+
+     - name: Upload a Build Artifact
+       uses: actions/upload-artifact@v4
+       with:
+         name: euro_dental_build
+         path: euro_dental_build.zip
