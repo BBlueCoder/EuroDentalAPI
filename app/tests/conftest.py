@@ -3,14 +3,13 @@ from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
 
-from app.main import app
 from app.db.dependencies import get_session
+from app.main import app
 
 engine = create_engine(
-    "sqlite://",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
+    "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
 )
+
 
 @pytest.fixture(name="session")
 def session_fixture():
@@ -21,7 +20,7 @@ def session_fixture():
 
 
 @pytest.fixture(name="client")
-def client_fixture(session : Session):
+def client_fixture(session: Session):
     def get_session_override():
         return session
 
