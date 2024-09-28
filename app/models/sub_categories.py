@@ -21,6 +21,6 @@ class SubCategoryRead(SubCategoryBase):
 
 
 class SubCategoryUpdate(SubCategoryBase):
-    category_id: int | None = None
+    pass
 
 
