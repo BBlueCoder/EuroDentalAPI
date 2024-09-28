@@ -54,6 +54,7 @@ jobs:
             fi
             source .venv/bin/activate
             pip install -r requirements.txt
+            rm -f .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_NAME=eurodental" >> .env
