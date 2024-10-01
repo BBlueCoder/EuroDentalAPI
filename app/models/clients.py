@@ -1,5 +1,6 @@
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
+from fastapi import Form
 
 
 class ClientBase(SQLModel):
@@ -18,6 +19,8 @@ class ClientBase(SQLModel):
     description: str | None = Field(
         None, description="Description or notes about the client"
     )
+    image_id: int | None = Field(None, description="id of the client's image",foreign_key="images.id")
+
 
 
 class Client(ClientBase, table=True):
@@ -25,7 +28,6 @@ class Client(ClientBase, table=True):
 
     email: EmailStr = Field(..., description="Email address, must be unique")
     id: int | None = Field(None, primary_key=True)
-    image_path: str | None = Field(None, description="Path to the client's image")
 
 
 class ClientCreate(ClientBase):
@@ -33,10 +35,68 @@ class ClientCreate(ClientBase):
 
 
 class ClientUpdate(ClientBase):
-    email: str | None = None
+    pass
 
 
 class ClientRead(ClientBase):
     id: int
-    image_path: str | None = Field(None, description="Path to the client's image")
     email: EmailStr = Field(..., description="Email address, must be unique")
+
+
+def parse_client_from_date_to_client_create(
+        first_name: str | None = Form(
+            None, max_length=100, description="First name, up to 100 characters"
+        ),
+        last_name: str | None = Form(
+            None, max_length=100, description="Last name, up to 100 characters"
+        ),
+        phone_number: str | None = Form(
+            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        ),
+        address: str | None = Form(None, description="Address of the client"),
+        city: str | None = Form(None, description="City where the client resides"),
+        fixed_phone_number: str | None = Form(None, description="Fixed phone number"),
+        description: str | None = Form(
+            None, description="Description or notes about the client"
+        ),
+        email: EmailStr = Form(..., description="Email address, must be unique")
+):
+    return ClientCreate(
+        first_name=first_name,
+        last_name=last_name,
+        phone_number=phone_number,
+        address=address,
+        city=city,
+        fixed_phone_number=fixed_phone_number,
+        description=description,
+        email=email
+    )
+
+def parse_client_from_date_to_client_update(
+        first_name: str | None = Form(
+            None, max_length=100, description="First name, up to 100 characters"
+        ),
+        last_name: str | None = Form(
+            None, max_length=100, description="Last name, up to 100 characters"
+        ),
+        phone_number: str | None = Form(
+            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        ),
+        address: str | None = Form(None, description="Address of the client"),
+        city: str | None = Form(None, description="City where the client resides"),
+        fixed_phone_number: str | None = Form(None, description="Fixed phone number"),
+        description: str | None = Form(
+            None, description="Description or notes about the client"
+        ),
+        image_id : int | None = None
+):
+    return ClientUpdate(
+        first_name=first_name,
+        last_name=last_name,
+        phone_number=phone_number,
+        address=address,
+        city=city,
+        fixed_phone_number=fixed_phone_number,
+        description=description,
+        image_id=image_id
+    )
