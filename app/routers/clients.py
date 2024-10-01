@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, UploadFile, HTTPException, Response, status, Form
 from sqlmodel import Session, select
-
+from pydantic import EmailStr
 from app.db.dependencies import get_session
-from app.models.clients import Client, ClientCreate, ClientRead, ClientUpdate
+from app.models.clients import Client, ClientCreate, ClientRead, ClientUpdate, parse_client_from_date_to_client_create, \
+    parse_client_from_date_to_client_update
+from app.utils.image_utils import save_image
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -22,8 +24,15 @@ async def get_client_by_id(*, session: Session = Depends(get_session), client_id
 
 @router.post("/", response_model=ClientRead)
 async def create_client(
-    *, session: Session = Depends(get_session), client: ClientCreate
+        *, session: Session = Depends(get_session),
+        client: ClientCreate = Depends(parse_client_from_date_to_client_create),
+        image: UploadFile | None = None
 ):
+    if image:
+        db_image = await save_image(image, session)
+        if db_image:
+            client.image_id = db_image.id
+
     db_client = Client.model_validate(client)
     session.add(db_client)
     session.commit()
@@ -33,12 +42,23 @@ async def create_client(
 
 @router.put("/{client_id}", response_model=ClientRead)
 async def update_client(
-    *, session: Session = Depends(get_session), client: ClientUpdate, client_id: int
+        *, session: Session = Depends(get_session),
+        client: ClientUpdate = Depends(parse_client_from_date_to_client_update),
+        email : EmailStr | None = Form(default=None),
+        image: UploadFile | None = None,
+        client_id: int
 ):
+    if image:
+        db_image = await save_image(image, session)
+        if db_image:
+            client.image_id = db_image.id
+
     db_client = session.get(Client, client_id)
     if not db_client:
         raise HTTPException(status_code=404, detail="Client Not Found")
     client_data = client.model_dump(exclude_unset=True)
+    if email:
+        client_data["email"] = email
     db_client.sqlmodel_update(client_data)
     session.add(db_client)
     session.commit()

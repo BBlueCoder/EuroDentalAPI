@@ -13,14 +13,14 @@ def test_get_all_clients(client: TestClient):
     [("test1@mail.com", 1), ("test2@mail.com", 1), ("test3@mail.com", 1)],
 )
 def test_create_client(client: TestClient, email, client_id):
-    res = client.post("/clients", json={"email": email})
+    res = client.post("/clients", data={"email": email})
     assert res.status_code == status.HTTP_200_OK
     assert res.json().get("id") == client_id
 
 
 def test_create_and_get_clients(client: TestClient):
-    client.post("/clients", json={"email": "test@mail.com"})
-    client.post("/clients", json={"email": "test2@mail.com"})
+    client.post("/clients", data={"email": "test@mail.com"})
+    client.post("/clients", data={"email": "test2@mail.com"})
 
     res = client.get("/clients")
     assert res.status_code == status.HTTP_200_OK
@@ -33,7 +33,7 @@ def test_get_not_found_client_by_id(client: TestClient):
 
 
 def test_create_client_get_client_by_id(client: TestClient):
-    client.post("/clients", json={"email": "test@mail.com"})
+    client.post("/clients", data={"email": "test@mail.com"})
 
     res = client.get("/clients/1")
     assert res.status_code == status.HTTP_200_OK
@@ -54,11 +54,11 @@ def test_create_client_without_email(client: TestClient):
     ],
 )
 def test_update_client(client: TestClient, first_name, last_name):
-    client_data = client.post("/clients", json={"email": "test@mail.com"}).json()
+    client_data = client.post("/clients", data={"email": "test@mail.com"}).json()
 
     res = client.put(
         f"/clients/{client_data["id"]}",
-        json={"first_name": first_name, "last_name": last_name},
+        data={"first_name": first_name, "last_name": last_name},
     )
     assert res.status_code == status.HTTP_200_OK
     assert res.json().get("first_name") == first_name
@@ -66,12 +66,12 @@ def test_update_client(client: TestClient, first_name, last_name):
 
 
 def test_update_invalid_client(client: TestClient):
-    res = client.put("/clients/1", json={"first_name": "test"})
+    res = client.put("/clients/1", data={"first_name": "test"})
     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_delete_client(client: TestClient):
-    client_data = client.post("/clients", json={"email": "test@mail.com"}).json()
+    client_data = client.post("/clients", data={"email": "test@mail.com"}).json()
 
     res = client.delete(f"/clients/{client_data["id"]}")
     assert res.status_code == status.HTTP_204_NO_CONTENT
