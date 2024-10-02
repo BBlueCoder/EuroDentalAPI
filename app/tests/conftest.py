@@ -4,7 +4,6 @@ import pytest
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
-from PIL import Image
 from app.db.dependencies import get_session
 from app.main import app
 from pathlib import Path
@@ -32,16 +31,6 @@ def client_fixture(session: Session):
     yield TestClient(app)
 
     app.dependency_overrides.clear()
-
-@pytest.fixture(name="image")
-def image_fixture():
-    img_path = "images/image.png"
-    prv_img = Path(img_path)
-    if prv_img.exists():
-        return img_path
-    img = Image.new('RGB',(1,1), color='white')
-    img.save(img_path)
-    return img_path
 
 class UploadFileMock:
     def __init__(self, content_type, file_content, filename = "image.png"):
