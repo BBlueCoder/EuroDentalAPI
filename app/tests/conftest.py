@@ -1,10 +1,13 @@
+from io import BytesIO
+
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
-
+from PIL import Image
 from app.db.dependencies import get_session
 from app.main import app
+from pathlib import Path
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -29,3 +32,34 @@ def client_fixture(session: Session):
     yield TestClient(app)
 
     app.dependency_overrides.clear()
+
+@pytest.fixture(name="image")
+def image_fixture():
+    img_path = "images/image.png"
+    prv_img = Path(img_path)
+    if prv_img.exists():
+        return img_path
+    img = Image.new('RGB',(1,1), color='white')
+    img.save(img_path)
+    return img_path
+
+class UploadFileMock:
+    def __init__(self, content_type, file_content, filename = "image.png"):
+        self.content_type = content_type
+        self.file = BytesIO(file_content)
+        self.filename = filename
+
+    async def read(self):
+        return self.file.read()
+
+@pytest.fixture(name="upload_file_mock")
+def upload_file_mock_fixture():
+    file_content = b'a' * (1024 * 1024)
+    upload_file = UploadFileMock("image/jpeg",file_content)
+    return upload_file
+
+@pytest.fixture(name="upload_file_mock_big_size")
+def upload_file_mock_big_size_fixture():
+    file_content = b'a' * (6 * 1024 * 1024)
+    upload_file = UploadFileMock("image/jpeg",file_content)
+    return upload_file
