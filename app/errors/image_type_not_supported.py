@@ -1,0 +1,2 @@
+class ImageTypeNotSupported(Exception):
+    pass

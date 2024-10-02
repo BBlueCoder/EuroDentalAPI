@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
 from sqlmodel import SQLModel
 from pydantic import BaseModel
-from .routers import categories, clients, sub_categories, brands
+from .routers import categories, clients, sub_categories, brands, images
 
 app = FastAPI()
 
@@ -23,6 +23,7 @@ app.include_router(clients.router)
 app.include_router(categories.router)
 app.include_router(sub_categories.router)
 app.include_router(brands.router)
+app.include_router(images.router)
 
 
 @app.get("/")
