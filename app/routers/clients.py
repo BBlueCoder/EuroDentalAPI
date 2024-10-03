@@ -1,32 +1,40 @@
 from fastapi import APIRouter, Depends, UploadFile, HTTPException, Response, status, Form
 from sqlmodel import Session, select
 from pydantic import EmailStr
+from starlette.requests import Request
+
 from app.db.dependencies import get_session
 from app.models.clients import Client, ClientCreate, ClientRead, ClientUpdate, parse_client_from_date_to_client_create, \
-    parse_client_from_date_to_client_update
+    parse_client_from_date_to_client_update, client_to_client_read
 from app.utils.image_utils import save_image
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
 
 @router.get("/", response_model=list[ClientRead])
-async def get_all_clients(*, session: Session = Depends(get_session)):
-    return session.exec(select(Client)).all()
+async def get_all_clients(*, session: Session = Depends(get_session), req : Request):
+    clients= session.exec(select(Client)).all()
+    res = []
+    for client in clients:
+        res.append(client_to_client_read(client,req))
+
+    return res
 
 
 @router.get("/{client_id}", response_model=ClientRead)
-async def get_client_by_id(*, session: Session = Depends(get_session), client_id: int):
+async def get_client_by_id(*, session: Session = Depends(get_session), client_id: int, req : Request):
     client = session.get(Client, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client Not Found")
-    return client
+    return client_to_client_read(client,req)
 
 
 @router.post("/", response_model=ClientRead)
 async def create_client(
         *, session: Session = Depends(get_session),
         client: ClientCreate = Depends(parse_client_from_date_to_client_create),
-        image: UploadFile | None = None
+        image: UploadFile | None = None,
+        req : Request
 ):
     if image:
         db_image = await save_image(image, session)
@@ -37,7 +45,7 @@ async def create_client(
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
-    return db_client
+    return client_to_client_read(db_client,req)
 
 
 @router.put("/{client_id}", response_model=ClientRead)
@@ -46,7 +54,8 @@ async def update_client(
         client: ClientUpdate = Depends(parse_client_from_date_to_client_update),
         email : EmailStr | None = Form(default=None),
         image: UploadFile | None = None,
-        client_id: int
+        client_id: int,
+        req : Request
 ):
     if image:
         db_image = await save_image(image, session)
@@ -63,7 +72,7 @@ async def update_client(
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
-    return db_client
+    return client_to_client_read(db_client,req)
 
 
 @router.delete("/{client_id}")

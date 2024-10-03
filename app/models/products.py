@@ -3,6 +3,10 @@ from sqlmodel import SQLModel, Field
 from fastapi import Form
 from datetime import datetime
 
+from starlette.requests import Request
+
+from app.utils.global_utils import generate_the_address
+
 
 class ProductBase(SQLModel):
     product_name: str | None = Field(
@@ -41,13 +45,7 @@ class ProductUpdate(ProductBase):
 class ProductRead(ProductBase):
     id: int
     purchase_date: datetime | None = Field(None, description="Date of purchase")
-
-    @computed_field()
-    @property
-    def image_path(self) -> str | None:
-        if self.image_id:
-            return f"/images/{self.image_id}"
-        return None
+    image_path : str | None = None
 
 
 def parse_product_from_data_to_product_create(
@@ -113,3 +111,9 @@ def parse_product_from_data_to_product_update(
         reference=reference,
         image_id=image_id
     )
+
+def product_to_product_read(product : Product, req : Request):
+    product_dic = product.model_dump()
+    if product_dic["image_id"]:
+        product_dic["image_path"] = generate_the_address(req, f"/images/{product_dic["image_id"]}")
+    return ProductRead(**product_dic)
