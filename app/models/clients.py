@@ -1,6 +1,11 @@
+from typing import Any
+
 from pydantic import EmailStr, computed_field
 from sqlmodel import Field, SQLModel
 from fastapi import Form
+from starlette.requests import Request
+
+from app.utils.global_utils import generate_the_address
 
 
 class ClientBase(SQLModel):
@@ -41,13 +46,7 @@ class ClientUpdate(ClientBase):
 class ClientRead(ClientBase):
     id: int
     email: EmailStr = Field(..., description="Email address, must be unique")
-
-    @computed_field()
-    @property
-    def image_path(self) -> str | None:
-        if self.image_id:
-            return f"/images/{self.image_id}"
-        return None
+    image_path : str | None = None
 
 
 def parse_client_from_date_to_client_create(
@@ -107,3 +106,10 @@ def parse_client_from_date_to_client_update(
         description=description,
         image_id=image_id
     )
+
+def client_to_client_read(client : Client, req : Request):
+    client_dic = client.model_dump()
+    if client_dic["image_id"]:
+        client_dic["image_path"] = generate_the_address(req, f"/images/{client_dic["image_id"]}")
+    return ClientRead(**client_dic)
+

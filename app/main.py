@@ -32,7 +32,7 @@ app.include_router(products.router)
 
 @app.get("/")
 async def root(req : Request):
-    return {"message": f"Hello from server {req.url.hostname}:{req.url.port}"}
+    return {"message": f"Hello from server {req.url.scheme}://{req.url.hostname}:{req.url.port} !!!"}
 
 class FormImage(BaseModel):
     text : str
