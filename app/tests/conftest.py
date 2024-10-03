@@ -6,6 +6,7 @@ from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
 from app.db.dependencies import get_session
 from app.main import app
+from app.models.profiles import Profile
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -30,6 +31,14 @@ def client_fixture(session: Session):
     yield TestClient(app)
 
     app.dependency_overrides.clear()
+
+@pytest.fixture(name="profile")
+def profile_fixture(session : Session):
+    profile = Profile(profile_name="profile1")
+    session.add(profile)
+    session.commit()
+    session.refresh(profile)
+    return profile
 
 class UploadFileMock:
     def __init__(self, content_type, file_content, filename = "image.png"):
