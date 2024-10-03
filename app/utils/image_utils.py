@@ -24,6 +24,7 @@ async def save_image_to_db(session : Session, image_name : str):
 
 async def save_image(image: UploadFile, session : Session):
     validate_image(image)
+    image.file.seek(0)
     image_name = await save_image_to_disk(image, "images")
     return await save_image_to_db(session=session,image_name=image_name)
 
