@@ -6,7 +6,6 @@ from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
 from app.db.dependencies import get_session
 from app.main import app
-from pathlib import Path
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool

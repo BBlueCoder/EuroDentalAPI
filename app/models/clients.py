@@ -1,4 +1,4 @@
-from pydantic import EmailStr
+from pydantic import EmailStr, computed_field
 from sqlmodel import Field, SQLModel
 from fastapi import Form
 
@@ -41,6 +41,13 @@ class ClientUpdate(ClientBase):
 class ClientRead(ClientBase):
     id: int
     email: EmailStr = Field(..., description="Email address, must be unique")
+
+    @computed_field()
+    @property
+    def image_path(self) -> str | None:
+        if self.image_id:
+            return f"/images/{self.image_id}"
+        return None
 
 
 def parse_client_from_date_to_client_create(

@@ -3,9 +3,12 @@ from typing import Annotated
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
+from httpx import request
 from sqlmodel import SQLModel
 from pydantic import BaseModel
-from .routers import categories, clients, sub_categories, brands, images
+from starlette.requests import Request
+
+from .routers import categories, clients, sub_categories, brands, images, products
 
 app = FastAPI()
 
@@ -24,11 +27,12 @@ app.include_router(categories.router)
 app.include_router(sub_categories.router)
 app.include_router(brands.router)
 app.include_router(images.router)
+app.include_router(products.router)
 
 
 @app.get("/")
-async def root():
-    return {"message": "Hello from server!"}
+async def root(req : Request):
+    return {"message": f"Hello from server {req.url.hostname}:{req.url.port}"}
 
 class FormImage(BaseModel):
     text : str
