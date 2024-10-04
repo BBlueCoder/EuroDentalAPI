@@ -8,7 +8,7 @@ from sqlmodel import SQLModel
 from pydantic import BaseModel
 from starlette.requests import Request
 
-from .routers import categories, clients, sub_categories, brands, images, products, profiles, users
+from .routers import categories, clients, sub_categories, brands, images, products, profiles, users, tasks
 
 app = FastAPI()
 
@@ -30,6 +30,7 @@ app.include_router(images.router)
 app.include_router(products.router)
 app.include_router(profiles.router)
 app.include_router(users.router)
+app.include_router(tasks.router)
 
 
 @app.get("/")

@@ -7,6 +7,7 @@ from starlette.testclient import TestClient
 from app.db.dependencies import get_session
 from app.main import app
 from app.models.profiles import Profile
+from app.models.users import UserUpdate, User
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -39,6 +40,14 @@ def profile_fixture(session : Session):
     session.commit()
     session.refresh(profile)
     return profile
+
+@pytest.fixture(name="user_db")
+def user_db_fixture(session : Session,profile : Profile):
+    user = User(email="user@mail.com", profile_id=profile.id, password_hash="password")
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
 
 class UploadFileMock:
     def __init__(self, content_type, file_content, filename = "image.png"):
