@@ -37,9 +37,7 @@ def test_create_and_get_brands(client: TestClient):
 
 
 def test_get_brand_by_id(client: TestClient):
-    brand_data = client.post(
-        BRANDS_PATH, json={"brand": brands[0]}
-    ).json()
+    brand_data = client.post(BRANDS_PATH, json={"brand": brands[0]}).json()
 
     res = client.get(f"{BRANDS_PATH}/{brand_data["id"]}")
     assert res.status_code == status.HTTP_200_OK
@@ -62,9 +60,7 @@ def test_get_invalid_brand_by_id(client: TestClient):
 def test_update_brand(client: TestClient, brand: str):
     brand_data = client.post(BRANDS_PATH, json={"brand": brand}).json()
 
-    res = client.put(
-        f"{BRANDS_PATH}/{brand_data["id"]}", json={"brand": brand}
-    )
+    res = client.put(f"{BRANDS_PATH}/{brand_data["id"]}", json={"brand": brand})
 
     assert res.status_code == status.HTTP_200_OK
     assert res.json()["brand"] == brand
@@ -83,9 +79,7 @@ def test_update_brand_without_value(client: TestClient):
 
 
 def delete_brand(client: TestClient):
-    brand_data = client.post(
-        BRANDS_PATH, json={"brand": brands[0]}
-    ).json()
+    brand_data = client.post(BRANDS_PATH, json={"brand": brands[0]}).json()
 
     res = client.delete(f"{BRANDS_PATH}/{brand_data["id"]}")
 

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
+
 from app.db.dependencies import get_session
-from app.models.profiles import Profile, ProfileRead, ProfileCreate
+from app.models.profiles import Profile, ProfileCreate, ProfileRead
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
@@ -34,10 +35,7 @@ async def create_profile(
 
 @router.put("/{profile_id}", response_model=ProfileRead)
 async def update_profile(
-    *,
-    session: Session = Depends(get_session),
-    profile: ProfileCreate,
-    profile_id: int
+    *, session: Session = Depends(get_session), profile: ProfileCreate, profile_id: int
 ):
     db_profile = session.get(Profile, profile_id)
     if not db_profile:

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
+
 from app.db.dependencies import get_session
 from app.models.categories import Category, CategoryCreate, CategoryRead
 
