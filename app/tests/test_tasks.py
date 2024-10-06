@@ -4,8 +4,10 @@ from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from app.models.clients import Client
+from app.models.products import Product
 from app.models.tasks import Task
 from app.models.users import User
+from app.tests.test_task_products import TASK_PRODUCTS_PATH
 
 TASKS_PATH = "/tasks"
 tasks = [
@@ -19,14 +21,6 @@ task_dates = [
     "2024-08-02",
     "2024-09-05"
 ]
-
-@pytest.fixture(name="client_db")
-def client_fixture(session : Session):
-    client = Client(email="client@mail.com")
-    session.add(client)
-    session.commit()
-    session.refresh(client)
-    return client
 
 @pytest.fixture(name="task")
 def task_fixture(client_db : Client, user_db : User):
@@ -49,6 +43,15 @@ def test_create_task_without_value(client: TestClient):
 
     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
+def test_create_task_with_task_product(client : TestClient, task, product : Product):
+    task["task_name"] = "task1"
+    task_data = client.post(TASKS_PATH, json=task).json()
+    assert task_data
+
+    client.post(TASK_PRODUCTS_PATH, json={"product_reference": product.reference, "task_id":task_data["id"]})
+    res = client.get(f"{TASKS_PATH}/{task_data["id"]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()["id_category"] == product.id_category
 
 def test_create_and_get_tasks(client: TestClient,task):
     for task_name in tasks:

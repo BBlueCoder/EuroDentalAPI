@@ -1,12 +1,12 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status, Query
 from sqlalchemy import Select
-from sqlmodel import Session, select,desc, and_, asc
+from sqlmodel import Session, select, desc, and_, asc
 from starlette.requests import Request
 
 from app.db.dependencies import get_session
 from app.models.clients import Client
+from app.models.products import Product
+from app.models.task_products import TaskProduct
 from app.models.tasks import TaskRead, Task, TaskCreate, TaskUpdate, TaskFilterParams
 from app.models.users import User
 from app.utils.global_utils import generate_the_address
@@ -14,11 +14,16 @@ from app.utils.global_utils import generate_the_address
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-async def get_tasks(*, task_id: int | None = None, session: Session, req: Request, filter_params : TaskFilterParams = TaskFilterParams()) -> list[TaskRead]:
-    statement: Select[tuple[Task, Client, User]] = (select(Task, Client, User).join(Client, isouter=True)
-                                                    .join(User,
-                                                          Task.technician_id == User.id,
-                                                          isouter=True))
+async def get_tasks(*, task_id: int | None = None, session: Session, req: Request,
+                    filter_params: TaskFilterParams = TaskFilterParams()) -> list[TaskRead]:
+    statement: Select[tuple[Task, Client, User, TaskProduct, Product]] = (
+        select(Task, Client, User,TaskProduct, Product).join(Client, isouter=True)
+        .join(User,
+              User.id == Task.technician_id,
+              isouter=True)
+        .join(TaskProduct, isouter=True)
+        .join(Product, TaskProduct.product_reference == Product.reference, isouter=True)
+        )
 
     if task_id:
         statement = statement.where(Task.id == task_id)
@@ -31,7 +36,8 @@ async def get_tasks(*, task_id: int | None = None, session: Session, req: Reques
                 Task.task_date <= filter_params.date_range_end
             ))
 
-        order_by = Task.task_date if filter_params.order_by == "task_date" else (Task.task_name if filter_params.order_by == "task_name" else Task.task_type)
+        order_by = Task.task_date if filter_params.order_by == "task_date" else (
+            Task.task_name if filter_params.order_by == "task_name" else Task.task_type)
         sort_by = desc(order_by) if filter_params.sort == "desc" else asc(order_by)
 
         statement = statement.order_by(sort_by)
@@ -40,7 +46,7 @@ async def get_tasks(*, task_id: int | None = None, session: Session, req: Reques
 
     mapped_results: list[TaskRead] = []
 
-    for task, client, user in tasks_with_details:
+    for task, client, user, task_product, product in tasks_with_details:
         task_read = TaskRead(**task.model_dump())
         if client:
             task_read.client = f"{client.last_name} {client.first_name}"
@@ -52,15 +58,23 @@ async def get_tasks(*, task_id: int | None = None, session: Session, req: Reques
             if user.image_id:
                 task_read.technician_image = generate_the_address(req, f"images/{user.image_id}")
 
+        if product:
+            if product.id_category:
+                task_read.id_category = product.id_category
+            if product.id_sub_category:
+                task_read.id_sub_category = product.id_sub_category
+            if product.id_brand:
+                task_read.id_brand = product.id_brand
+
         mapped_results.append(task_read)
 
     return mapped_results
 
 
 @router.get("/", response_model=list[TaskRead])
-async def get_all_tasks(*, session: Session = Depends(get_session), req: Request, filter_params : TaskFilterParams = Depends()):
-    print(filter_params)
-    return await get_tasks(session=session, req=req,filter_params=filter_params)
+async def get_all_tasks(*, session: Session = Depends(get_session), req: Request,
+                        filter_params: TaskFilterParams = Depends()):
+    return await get_tasks(session=session, req=req, filter_params=filter_params)
 
 
 @router.get("/{task_id}", response_model=TaskRead)

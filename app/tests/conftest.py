@@ -6,6 +6,9 @@ from sqlmodel.pool import StaticPool
 from starlette.testclient import TestClient
 from app.db.dependencies import get_session
 from app.main import app
+from app.models.categories import Category
+from app.models.clients import Client
+from app.models.products import Product
 from app.models.profiles import Profile
 from app.models.users import UserUpdate, User
 
@@ -48,6 +51,30 @@ def user_db_fixture(session : Session,profile : Profile):
     session.commit()
     session.refresh(user)
     return user
+
+@pytest.fixture(name="category")
+def category_fixture(session : Session):
+    category = Category(category="category1")
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
+
+@pytest.fixture(name="product")
+def product_fixture(session : Session, category : Category):
+    product = Product(reference="ref001",product_name="product1",id_category=category.id)
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+    return product
+
+@pytest.fixture(name="client_db")
+def client_db_fixture(session : Session):
+    client = Client(email="client@mail.com")
+    session.add(client)
+    session.commit()
+    session.refresh(client)
+    return client
 
 class UploadFileMock:
     def __init__(self, content_type, file_content, filename = "image.png"):

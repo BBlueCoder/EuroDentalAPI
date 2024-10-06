@@ -45,6 +45,9 @@ class TaskRead(TaskWithIDs):
     client_image : str | None = None
     technician : str | None = None
     technician_image : str | None = None
+    id_category : int | None = None
+    id_sub_category : int | None = None
+    id_brand : int | None = None
 
 class TaskFilterParams(BaseModel):
     order_by : Literal["task_date","task_name","task_type"] = "task_date"
