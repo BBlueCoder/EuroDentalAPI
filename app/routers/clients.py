@@ -37,7 +37,10 @@ async def create_client(
         image: UploadFile | None = None,
         req : Request
 ):
+    print("-------------------------------------------------------")
+    print(image)
     if image:
+        print("*********************************** received image!")
         db_image = await save_image(image, session)
         if db_image:
             client.image_id = db_image.id
@@ -53,7 +56,6 @@ async def create_client(
 async def update_client(
         *, session: Session = Depends(get_session),
         client: ClientUpdate = Depends(parse_client_from_date_to_client_update),
-        email : EmailStr | None = Form(default=None),
         image: UploadFile | None = None,
         client_id: int,
         req : Request
@@ -67,8 +69,6 @@ async def update_client(
     if not db_client:
         raise HTTPException(status_code=404, detail="Client Not Found")
     client_data = client.model_dump(exclude_unset=True)
-    if email:
-        client_data["email"] = email
     db_client.sqlmodel_update(client_data)
     session.add(db_client)
     session.commit()

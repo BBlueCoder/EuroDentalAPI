@@ -43,7 +43,7 @@ class UserUpdate(UserBase):
         None, max_length=255, description="Last name, up to 255 characters"
     )
     profile_id: int | None = Field(None, foreign_key="profiles.id")
-
+    email: EmailStr | None = Form(default=None),
 
 class UserRead(UserBase):
     id: int
@@ -95,18 +95,23 @@ def parse_user_from_data_to_user_update(
             None, min_length=10, max_length=10, description="Phone number, 10 digits"
         ),
         is_blocked: bool | None = Form(None, description="Indicates if the user is blocked"),
+        email: EmailStr | None = Form(default=None),
+        profile_id: int | None = Form(None, foreign_key="profiles.id"),
 ):
+    user_update = UserUpdate()
+    if first_name:
+        user_update.first_name = first_name
+    if last_name:
+        user_update.last_name = last_name
     if password:
-        return UserUpdate(
-            first_name=first_name,
-            last_name=last_name,
-            password_hash=hash_password(password),
-            phone_number=phone_number,
-            is_blocked=is_blocked
-        )
-    return UserUpdate(
-            first_name=first_name,
-            last_name=last_name,
-            phone_number=phone_number,
-            is_blocked=is_blocked
-        )
+        user_update.password_hash = hash_password(password)
+    if phone_number:
+        user_update.phone_number = phone_number
+    if is_blocked:
+        user_update.is_blocked = is_blocked
+    if email:
+        user_update.email = email
+    if profile_id:
+        user_update.profile_id = profile_id
+
+    return user_update

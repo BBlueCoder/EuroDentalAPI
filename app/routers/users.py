@@ -53,8 +53,6 @@ async def create_user(
 async def update_user(
         *, session: Session = Depends(get_session),
         user: UserUpdate = Depends(parse_user_from_data_to_user_update),
-        email : EmailStr | None = Form(default=None),
-        profile_id: int | None = Form(None, foreign_key="profiles.id"),
         image: UploadFile | None = None,
         user_id: int,
         req : Request
@@ -68,10 +66,6 @@ async def update_user(
     if not db_user:
         raise HTTPException(status_code=404, detail="User Not Found")
     user_data = user.model_dump(exclude_unset=True)
-    if email:
-        user_data["email"] = email
-    if profile_id:
-        user_data["profile_id"] = profile_id
     db_user.sqlmodel_update(user_data)
     session.add(db_user)
     session.commit()

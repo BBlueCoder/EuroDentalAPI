@@ -1,3 +1,4 @@
+from markdown_it.rules_inline import image
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 from fastapi import Form
@@ -38,7 +39,7 @@ class ClientCreate(ClientBase):
 
 
 class ClientUpdate(ClientBase):
-    pass
+    email: EmailStr | None = Field(None, description="Email address, must be unique")
 
 
 class ClientRead(ClientBase):
@@ -92,16 +93,29 @@ def parse_client_from_date_to_client_update(
         description: str | None = Form(
             None, description="Description or notes about the client"
         ),
-        image_id : int | None = None
+        image_id : int | None = None,
+        email: EmailStr | None = Form(None, description="Email address, must be unique")
+
 ):
-    return ClientUpdate(
-        first_name=first_name,
-        last_name=last_name,
-        phone_number=phone_number,
-        address=address,
-        city=city,
-        fixed_phone_number=fixed_phone_number,
-        description=description,
-        image_id=image_id
-    )
+    client_update = ClientUpdate()
+    if first_name:
+        client_update.first_name = first_name
+    if last_name:
+        client_update.last_name = last_name
+    if phone_number:
+        client_update.phone_number = phone_number
+    if address:
+        client_update.address = address
+    if city:
+        client_update.city = city
+    if fixed_phone_number:
+        client_update.fixed_phone_number = fixed_phone_number
+    if description:
+        client_update.description = description
+    if image_id:
+        client_update.image_id = image_id
+    if email:
+        client_update.email = email
+
+    return client_update
 
