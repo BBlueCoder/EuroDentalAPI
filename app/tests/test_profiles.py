@@ -37,9 +37,7 @@ def test_create_and_get_profiles(client: TestClient):
 
 
 def test_get_profile_by_id(client: TestClient):
-    profile_data = client.post(
-        PROFILES_PATH, json={"profile_name": profiles[0]}
-    ).json()
+    profile_data = client.post(PROFILES_PATH, json={"profile_name": profiles[0]}).json()
 
     res = client.get(f"{PROFILES_PATH}/{profile_data["id"]}")
     assert res.status_code == status.HTTP_200_OK
@@ -83,9 +81,7 @@ def test_update_profile_without_value(client: TestClient):
 
 
 def delete_profile(client: TestClient):
-    profile_data = client.post(
-        PROFILES_PATH, json={"profile_name": profiles[0]}
-    ).json()
+    profile_data = client.post(PROFILES_PATH, json={"profile_name": profiles[0]}).json()
 
     res = client.delete(f"{PROFILES_PATH}/{profile_data["id"]}")
 

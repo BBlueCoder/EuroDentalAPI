@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
+
 from app.db.dependencies import get_session
-from app.models.brands import BrandRead, Brand, BrandCreate
+from app.models.brands import Brand, BrandCreate, BrandRead
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
@@ -12,9 +13,7 @@ async def get_all_brands(*, session: Session = Depends(get_session)):
 
 
 @router.get("/{brand_id}", response_model=BrandRead)
-async def get_brand_by_id(
-    *, session: Session = Depends(get_session), brand_id: int
-):
+async def get_brand_by_id(*, session: Session = Depends(get_session), brand_id: int):
     brand = session.get(Brand, brand_id)
     if not brand:
         raise HTTPException(status_code=404, detail="Brand Not Found")
@@ -22,9 +21,7 @@ async def get_brand_by_id(
 
 
 @router.post("/", response_model=BrandRead)
-async def create_brand(
-    *, session: Session = Depends(get_session), brand: BrandCreate
-):
+async def create_brand(*, session: Session = Depends(get_session), brand: BrandCreate):
     db_brand = Brand.model_validate(brand)
     session.add(db_brand)
     session.commit()
@@ -34,10 +31,7 @@ async def create_brand(
 
 @router.put("/{brand_id}", response_model=BrandRead)
 async def update_brand(
-    *,
-    session: Session = Depends(get_session),
-    brand: BrandCreate,
-    brand_id: int
+    *, session: Session = Depends(get_session), brand: BrandCreate, brand_id: int
 ):
     db_brand = session.get(Brand, brand_id)
     if not db_brand:

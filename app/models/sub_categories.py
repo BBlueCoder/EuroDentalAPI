@@ -1,9 +1,11 @@
 from sqlmodel import Field, SQLModel
 
+
 class SubCategoryBase(SQLModel):
     sub_category: str | None = Field(
         None, max_length=50, description="sub category name, up to 50 characters"
     )
+
 
 class SubCategory(SubCategoryBase, table=True):
     __tablename__ = "sub_categories"
@@ -22,5 +24,3 @@ class SubCategoryRead(SubCategoryBase):
 
 class SubCategoryUpdate(SubCategoryBase):
     pass
-
-

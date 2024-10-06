@@ -4,9 +4,11 @@ from starlette.testclient import TestClient
 
 from app.models.profiles import Profile
 
+
 @pytest.fixture(name="user")
-def user_fixture(profile : Profile):
-    return {"email": "user@mail.com", "profile_id":profile.id, "password": "password"}
+def user_fixture(profile: Profile):
+    return {"email": "user@mail.com", "profile_id": profile.id, "password": "password"}
+
 
 def test_get_all_users(client: TestClient):
     res = client.get("/users")
@@ -16,6 +18,7 @@ def test_get_all_users(client: TestClient):
 def test_create_user(client: TestClient, user):
     res = client.post("/users", data=user)
     assert res.status_code == status.HTTP_200_OK
+
 
 def test_create_and_get_users(client: TestClient, user):
     client.post("/users", data=user)
@@ -30,7 +33,7 @@ def test_get_not_found_user_by_id(client: TestClient):
     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
-def test_create_user_get_user_by_id(client: TestClient,user):
+def test_create_user_get_user_by_id(client: TestClient, user):
     client.post("/users", data=user)
 
     res = client.get("/users/1")

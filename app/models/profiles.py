@@ -1,9 +1,11 @@
 from sqlmodel import Field, SQLModel
 
+
 class ProfileBase(SQLModel):
-    profile_name: str  = Field(
-        ..., max_length=25, description="profile name, up to 25 characters",unique=True
+    profile_name: str = Field(
+        ..., max_length=25, description="profile name, up to 25 characters", unique=True
     )
+
 
 class Profile(ProfileBase, table=True):
     __tablename__ = "profiles"
@@ -22,5 +24,3 @@ class ProfileRead(ProfileBase):
 
 class ProfileUpdate(ProfileBase):
     pass
-
-

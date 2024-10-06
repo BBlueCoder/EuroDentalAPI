@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
+
 from app.db.dependencies import get_session
-from app.models.task_products import TaskProductRead, TaskProduct, TaskProductCreate, TaskProductUpdate
+from app.models.task_products import (
+    TaskProduct,
+    TaskProductCreate,
+    TaskProductRead,
+    TaskProductUpdate,
+)
 
 router = APIRouter(prefix="/task_products", tags=["task_products"])
 
@@ -51,7 +57,9 @@ async def update_task_products(
 
 
 @router.delete("/{task_products_id}")
-async def delete_task_products(*, session: Session = Depends(get_session), task_products_id: int):
+async def delete_task_products(
+    *, session: Session = Depends(get_session), task_products_id: int
+):
     task_products = session.get(TaskProduct, task_products_id)
     if not task_products:
         raise HTTPException(status_code=404, detail="TaskProduct Not Found")

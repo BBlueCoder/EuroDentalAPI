@@ -1,14 +1,25 @@
 from typing import Annotated
 
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
 from httpx import request
-from sqlmodel import SQLModel
 from pydantic import BaseModel
+from sqlmodel import SQLModel
 from starlette.requests import Request
 
-from .routers import categories, clients, sub_categories, brands, images, products, profiles, users, tasks, task_products
+from .routers import (
+    brands,
+    categories,
+    clients,
+    images,
+    products,
+    profiles,
+    sub_categories,
+    task_products,
+    tasks,
+    users,
+)
 
 app = FastAPI()
 
@@ -35,20 +46,21 @@ app.include_router(task_products.router)
 
 
 @app.get("/")
-async def root(req : Request):
-    return {"message": f"Hello from server {req.url.scheme}://{req.url.hostname}:{req.url.port} !!!"}
+async def root(req: Request):
+    return {
+        "message": f"Hello from server {req.url.scheme}://{req.url.hostname}:{req.url.port} !!!"
+    }
+
 
 class FormImage(BaseModel):
-    text : str
-    date : str
+    text: str
+    date: str
 
-def parse_form_date(
-        text : str = Form(...),
-        date : str = Form(...)
-):
-    return FormImage(text=text,date=date)
+
+def parse_form_date(text: str = Form(...), date: str = Form(...)):
+    return FormImage(text=text, date=date)
 
 
 @app.post("/upload")
-async def upload(*,form : FormImage = Depends(parse_form_date),image : UploadFile):
-    return {"image_details":form}
+async def upload(*, form: FormImage = Depends(parse_form_date), image: UploadFile):
+    return {"image_details": form}

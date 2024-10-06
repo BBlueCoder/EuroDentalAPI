@@ -2,7 +2,7 @@ from sqlmodel import Field, SQLModel
 
 
 class BrandBase(SQLModel):
-    brand: str  = Field(
+    brand: str = Field(
         ..., max_length=50, description="brand name, up to 50 characters"
     )
 

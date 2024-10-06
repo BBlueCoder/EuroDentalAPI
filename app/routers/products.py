@@ -1,21 +1,34 @@
-from fastapi import APIRouter, Depends, UploadFile, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, status
 from sqlmodel import Session, select
 from starlette.requests import Request
 
 from app.db.dependencies import get_session
 from app.models.brands import Brand
 from app.models.categories import Category
-from app.models.products import Product, ProductRead, ProductCreate, parse_product_from_data_to_product_create, \
-    ProductUpdate, parse_product_from_data_to_product_update
+from app.models.products import (
+    Product,
+    ProductCreate,
+    ProductRead,
+    ProductUpdate,
+    parse_product_from_data_to_product_create,
+    parse_product_from_data_to_product_update,
+)
 from app.models.sub_categories import SubCategory
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
 router = APIRouter(prefix="/products", tags=["products"])
 
-async def get_products(*,product_id : int | None = None,session : Session, req : Request):
-    statement = select(Product, Category, SubCategory, Brand).join(Category, isouter=True).join(SubCategory, isouter=True).join(
-            Brand, isouter=True)
+
+async def get_products(
+    *, product_id: int | None = None, session: Session, req: Request
+):
+    statement = (
+        select(Product, Category, SubCategory, Brand)
+        .join(Category, isouter=True)
+        .join(SubCategory, isouter=True)
+        .join(Brand, isouter=True)
+    )
     if product_id:
         statement = statement.where(Product.id == product_id)
 
@@ -40,12 +53,14 @@ async def get_products(*,product_id : int | None = None,session : Session, req :
 
 @router.get("/", response_model=list[ProductRead])
 async def get_all_products(*, session: Session = Depends(get_session), req: Request):
-    return await get_products(session=session,req=req)
+    return await get_products(session=session, req=req)
 
 
 @router.get("/{product_id}", response_model=ProductRead)
-async def get_product_by_id(*, session: Session = Depends(get_session), product_id: int, req: Request):
-    product = await get_products(product_id=product_id,session=session,req=req)
+async def get_product_by_id(
+    *, session: Session = Depends(get_session), product_id: int, req: Request
+):
+    product = await get_products(product_id=product_id, session=session, req=req)
     if not product:
         raise HTTPException(status_code=404, detail="Product Not Found")
     return product[0]
@@ -53,10 +68,11 @@ async def get_product_by_id(*, session: Session = Depends(get_session), product_
 
 @router.post("/", response_model=ProductRead)
 async def create_product(
-        *, session: Session = Depends(get_session),
-        product: ProductCreate = Depends(parse_product_from_data_to_product_create),
-        image: UploadFile | None = None,
-        req : Request
+    *,
+    session: Session = Depends(get_session),
+    product: ProductCreate = Depends(parse_product_from_data_to_product_create),
+    image: UploadFile | None = None,
+    req: Request
 ):
     if image:
         db_image = await save_image(image, session)
@@ -67,16 +83,17 @@ async def create_product(
     session.add(db_product)
     session.commit()
     session.refresh(db_product)
-    return (await get_products(product_id=db_product.id,session=session,req=req))[0]
+    return (await get_products(product_id=db_product.id, session=session, req=req))[0]
 
 
 @router.put("/{product_id}", response_model=ProductRead)
 async def update_product(
-        *, session: Session = Depends(get_session),
-        product: ProductUpdate = Depends(parse_product_from_data_to_product_update),
-        image: UploadFile | None = None,
-        product_id: int,
-        req : Request
+    *,
+    session: Session = Depends(get_session),
+    product: ProductUpdate = Depends(parse_product_from_data_to_product_update),
+    image: UploadFile | None = None,
+    product_id: int,
+    req: Request
 ):
     if image:
         db_image = await save_image(image, session)
@@ -91,7 +108,7 @@ async def update_product(
     session.add(db_product)
     session.commit()
     session.refresh(db_product)
-    return (await get_products(product_id=db_product.id,session=session,req=req))[0]
+    return (await get_products(product_id=db_product.id, session=session, req=req))[0]
 
 
 @router.delete("/{product_id}")

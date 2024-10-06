@@ -65,7 +65,8 @@ def test_update_client(client: TestClient, first_name, last_name):
     assert res.json().get("last_name") == last_name
     assert res.json().get("email") == "test@mail.com"
 
-def test_update_client_email(client : TestClient):
+
+def test_update_client_email(client: TestClient):
     client_data = client.post("/clients", data={"email": "test@mail.com"}).json()
 
     res = client.put(
