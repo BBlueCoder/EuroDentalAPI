@@ -1,5 +1,7 @@
 from email.policy import default
+from typing import Literal
 
+from pydantic import BaseModel
 from sqlmodel import SQLModel, Field
 from datetime import date
 
@@ -13,22 +15,21 @@ class TaskBase(SQLModel):
     task_date: date | None = Field(default=None, description="Date the task is scheduled or created.")
     observation: str | None = Field(default=None, description="Additional observations or notes related to the task.")
 
+class TaskWithIDs(TaskBase):
+    create_by: int = Field(description="ID of the user who created the task, required field.", foreign_key="users.id")
+    client_id: int = Field(description="ID of the client associated with the task, required field.",
+                           foreign_key="clients.id")
+    status: str = Field(max_length=50, description="Current status of the task, required field.")
 
-class Task(TaskBase, table=True):
+class Task(TaskWithIDs, table=True):
     __tablename__ = "tasks"
 
     id: int | None = Field(None, primary_key=True)
-    create_by: int = Field(description="ID of the user who created the task, required field.", foreign_key="users.id")
-    client_id: int = Field(description="ID of the client associated with the task, required field.",
-                           foreign_key="clients.id")
-    status: str = Field(max_length=50, description="Current status of the task, required field.")
 
 
-class TaskCreate(TaskBase):
-    create_by: int = Field(description="ID of the user who created the task, required field.", foreign_key="users.id")
-    client_id: int = Field(description="ID of the client associated with the task, required field.",
-                           foreign_key="clients.id")
-    status: str = Field(max_length=50, description="Current status of the task, required field.")
+
+class TaskCreate(TaskWithIDs):
+    pass
 
 
 class TaskUpdate(TaskBase):
@@ -38,9 +39,16 @@ class TaskUpdate(TaskBase):
     status: str | None= Field(default=None,max_length=50, description="Current status of the task, required field.")
 
 
-class TaskRead(TaskBase):
+class TaskRead(TaskWithIDs):
     id: int
-    create_by: int = Field(description="ID of the user who created the task, required field.", foreign_key="users.id")
-    client_id: int = Field(description="ID of the client associated with the task, required field.",
-                           foreign_key="clients.id")
-    status: str = Field(max_length=50, description="Current status of the task, required field.")
+    client : str | None = None
+    client_image : str | None = None
+    technician : str | None = None
+    technician_image : str | None = None
+
+class TaskFilterParams(BaseModel):
+    order_by : Literal["task_date","task_name","task_type"] = "task_date"
+    sort: Literal["asc","desc"] = "desc"
+    exact_date : date | None = None
+    date_range_start : date | None = None
+    date_range_end : date | None = None

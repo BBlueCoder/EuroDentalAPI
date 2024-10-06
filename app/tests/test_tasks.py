@@ -14,6 +14,12 @@ tasks = [
     "task3",
 ]
 
+task_dates = [
+    "2024-10-06",
+    "2024-08-02",
+    "2024-09-05"
+]
+
 @pytest.fixture(name="client_db")
 def client_fixture(session : Session):
     client = Client(email="client@mail.com")
@@ -52,6 +58,47 @@ def test_create_and_get_tasks(client: TestClient,task):
     res = client.get(TASKS_PATH)
     assert res.status_code == status.HTTP_200_OK
     assert len(res.json()) == len(tasks)
+
+@pytest.fixture(name="save_tasks")
+def save_tasks_fixture(client : TestClient, task : dict):
+    for idx,task_name in enumerate(tasks):
+        task["task_name"] = task_name
+        task["task_date"] = task_dates[idx]
+        client.post(TASKS_PATH, json=task)
+
+    return ""
+
+def test_get_tasks_sorted_by_date_desc(client : TestClient, save_tasks):
+    res = client.get(TASKS_PATH)
+    task_dates.sort(reverse=True)
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()[0]["task_date"] == task_dates[0]
+
+def test_get_tasks_sorted_by_date_asc(client : TestClient, save_tasks):
+    res = client.get(f"{TASKS_PATH}/?sort=asc")
+    task_dates.sort()
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()[0]["task_date"] == task_dates[0]
+
+def test_get_tasks_sorted_by_exact_date(client: TestClient, save_tasks):
+    res = client.get(f"{TASKS_PATH}/?exact_date={task_dates[0]}")
+    print(res.json())
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()[0]["task_date"] == task_dates[0]
+
+    res = client.get(f"{TASKS_PATH}?exact_date=2023-05-02")
+    assert res.status_code == status.HTTP_200_OK
+    assert len(res.json()) == 0
+
+def test_get_tasks_sorted_by_range_date(client: TestClient, save_tasks):
+    task_dates.sort()
+    res = client.get(f"{TASKS_PATH}/?date_range_start={task_dates[0]}&date_range_end={task_dates[len(task_dates)-1]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert len(res.json()) == len(task_dates)
+
+    res = client.get(f"{TASKS_PATH}/?date_range_start={task_dates[0]}&date_range_end={task_dates[1]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert len(res.json()) == 2
 
 
 def test_get_task_by_id(client: TestClient, task):

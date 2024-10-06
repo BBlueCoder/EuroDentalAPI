@@ -105,9 +105,3 @@ def parse_client_from_date_to_client_update(
         image_id=image_id
     )
 
-def client_to_client_read(client : Client, req : Request):
-    client_dic = client.model_dump()
-    if client_dic["image_id"]:
-        client_dic["image_path"] = generate_the_address(req, f"/images/{client_dic["image_id"]}")
-    return ClientRead(**client_dic)
-
