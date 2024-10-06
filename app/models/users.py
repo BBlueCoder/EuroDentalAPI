@@ -1,11 +1,8 @@
 from pydantic import EmailStr, computed_field
 from sqlmodel import SQLModel, Field
 from fastapi import Form
-from datetime import datetime
 
-from starlette.requests import Request
-
-from app.utils.global_utils import generate_the_address, hash_password
+from app.utils.global_utils import hash_password
 
 
 class UserBase(SQLModel):
@@ -113,9 +110,3 @@ def parse_user_from_data_to_user_update(
             phone_number=phone_number,
             is_blocked=is_blocked
         )
-
-def user_to_user_read(user: User, req: Request):
-    user_dic = user.model_dump()
-    if user_dic["image_id"]:
-        user_dic["image_path"] = generate_the_address(req, f"/images/{user_dic["image_id"]}")
-    return UserRead(**user_dic)

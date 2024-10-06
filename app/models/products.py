@@ -37,7 +37,7 @@ class ProductUpdate(ProductBaseWithIDs):
     pass
 
 
-class ProductRead(ProductBase):
+class ProductRead(ProductBaseWithIDs):
     id: int
     image_path : str | None = None
     category_name : str | None = None

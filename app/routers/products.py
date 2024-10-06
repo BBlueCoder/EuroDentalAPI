@@ -17,7 +17,7 @@ async def get_products(*,product_id : int | None = None,session : Session, req :
     statement = select(Product, Category, SubCategory, Brand).join(Category, isouter=True).join(SubCategory, isouter=True).join(
             Brand, isouter=True)
     if product_id:
-        statement.where(Product.id == product_id)
+        statement = statement.where(Product.id == product_id)
 
     products_with_details = session.exec(statement).all()
 

@@ -5,8 +5,9 @@ from starlette.requests import Request
 
 from app.db.dependencies import get_session
 from app.models.clients import Client, ClientCreate, ClientRead, ClientUpdate, parse_client_from_date_to_client_create, \
-    parse_client_from_date_to_client_update, client_to_client_read
+    parse_client_from_date_to_client_update
 from app.utils.image_utils import save_image
+from app.utils.map_model_to_model_read import model_to_model_read
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -16,7 +17,7 @@ async def get_all_clients(*, session: Session = Depends(get_session), req : Requ
     clients= session.exec(select(Client)).all()
     res = []
     for client in clients:
-        res.append(client_to_client_read(client,req))
+        res.append(model_to_model_read(client,req))
 
     return res
 
@@ -26,7 +27,7 @@ async def get_client_by_id(*, session: Session = Depends(get_session), client_id
     client = session.get(Client, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client Not Found")
-    return client_to_client_read(client,req)
+    return model_to_model_read(client,req)
 
 
 @router.post("/", response_model=ClientRead)
@@ -45,7 +46,7 @@ async def create_client(
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
-    return client_to_client_read(db_client,req)
+    return model_to_model_read(db_client,req)
 
 
 @router.put("/{client_id}", response_model=ClientRead)
@@ -72,7 +73,7 @@ async def update_client(
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
-    return client_to_client_read(db_client,req)
+    return model_to_model_read(db_client,req)
 
 
 @router.delete("/{client_id}")
