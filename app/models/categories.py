@@ -1,4 +1,8 @@
-from sqlmodel import Field, SQLModel
+from typing import List
+
+from pydantic import ConfigDict
+from sqlmodel import Field, SQLModel, Relationship
+
 
 
 class CategoryBase(SQLModel):

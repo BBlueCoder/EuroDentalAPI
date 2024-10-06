@@ -1,12 +1,5 @@
-from pydantic import EmailStr, computed_field
 from sqlmodel import SQLModel, Field
 from fastapi import Form
-from datetime import datetime
-
-from starlette.requests import Request
-
-from app.utils.global_utils import generate_the_address
-
 
 class ProductBase(SQLModel):
     product_name: str | None = Field(
@@ -15,10 +8,7 @@ class ProductBase(SQLModel):
     description: str | None = Field(
         None, description="Description or notes about the product"
     )
-    id_category: int | None = Field(None, description="id of the product's category", foreign_key="categories.id")
-    id_sub_category: int | None = Field(None, description="id of the product's sub category",
-                                        foreign_key="sub_categories.id")
-    id_brand: int | None = Field(None, description="id of the product's band", foreign_key="brands.id")
+
     price: float | None = Field(None, description="Price of the product")
     stock_quantity: int | None = Field(None, description="Quantity of the product in stock")
     has_warranty: bool | None = Field(None, description="Indicates if the product has a warranty")
@@ -27,25 +17,33 @@ class ProductBase(SQLModel):
     image_id: int | None = Field(None, description="id of the product's image", foreign_key="images.id")
 
 
-class Product(ProductBase, table=True):
+class ProductBaseWithIDs(ProductBase):
+    id_category: int | None = Field(None, description="id of the product's category", foreign_key="categories.id")
+    id_sub_category: int | None = Field(None, description="id of the product's sub category",
+                                        foreign_key="sub_categories.id")
+    id_brand: int | None = Field(None, description="id of the product's band", foreign_key="brands.id")
+
+
+class Product(ProductBaseWithIDs, table=True):
     __tablename__ = "products"
 
     id: int | None = Field(None, primary_key=True)
-    purchase_date: datetime | None = Field(None, description="Date of purchase")
 
-
-class ProductCreate(ProductBase):
+class ProductCreate(ProductBaseWithIDs):
     pass
 
 
-class ProductUpdate(ProductBase):
+class ProductUpdate(ProductBaseWithIDs):
     pass
 
 
 class ProductRead(ProductBase):
     id: int
-    purchase_date: datetime | None = Field(None, description="Date of purchase")
     image_path : str | None = None
+    category_name : str | None = None
+    sub_category_name : str | None = None
+    brand_name : str |None = None
+
 
 
 def parse_product_from_data_to_product_create(
@@ -111,9 +109,3 @@ def parse_product_from_data_to_product_update(
         reference=reference,
         image_id=image_id
     )
-
-def product_to_product_read(product : Product, req : Request):
-    product_dic = product.model_dump()
-    if product_dic["image_id"]:
-        product_dic["image_path"] = generate_the_address(req, f"/images/{product_dic["image_id"]}")
-    return ProductRead(**product_dic)

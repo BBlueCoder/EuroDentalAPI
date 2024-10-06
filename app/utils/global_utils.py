@@ -1,3 +1,5 @@
+import typing
+
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from starlette.requests import Request
 
@@ -11,3 +13,4 @@ def hash_password(password : str) -> str:
 
 def verify_hashed_password(password : str, hashed_password : str):
     return pbkdf2_sha256.verify(password,hashed_password)
+
