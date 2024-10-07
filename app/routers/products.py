@@ -1,18 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, status
+from fastapi import (APIRouter, Depends, HTTPException, Response, UploadFile,
+                     status)
 from sqlmodel import Session, select
 from starlette.requests import Request
 
 from app.db.dependencies import get_session
 from app.models.brands import Brand
 from app.models.categories import Category
-from app.models.products import (
-    Product,
-    ProductCreate,
-    ProductRead,
-    ProductUpdate,
-    parse_product_from_data_to_product_create,
-    parse_product_from_data_to_product_update,
-)
+from app.models.products import (Product, ProductCreate, ProductRead,
+                                 ProductUpdate,
+                                 parse_product_from_data_to_product_create,
+                                 parse_product_from_data_to_product_update)
 from app.models.sub_categories import SubCategory
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read

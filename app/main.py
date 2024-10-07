@@ -1,27 +1,56 @@
 from typing import Annotated
 
-from fastapi import FastAPI, Form, UploadFile
+from fastapi import FastAPI, Form, UploadFile, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
+from fastapi.responses import JSONResponse
 from httpx import request
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import SQLModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
 
-from .routers import (
-    brands,
-    categories,
-    clients,
-    images,
-    products,
-    profiles,
-    sub_categories,
-    task_products,
-    tasks,
-    users,
-)
+from .errors.login_credentials_invalid import LoginCredentialsInvalid
+from .routers import (auth, brands, categories, clients, images, products,
+                      profiles, sub_categories, task_products, tasks, users)
 
 app = FastAPI()
+
+
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(_, exc: IntegrityError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"error_detail": jsonable_encoder(str(exc.__dict__["orig"]))},
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(req, exc: StarletteHTTPException):
+    print(exc.detail)
+    return JSONResponse(
+        status_code=exc.status_code, content={"error_detail": exc.detail}
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(req, exc: RequestValidationError):
+    print(exc.errors())
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error_detail": "Request Body, Query or Path parameters are invalid. Please check the documentation."
+        },
+    )
+
+
+@app.exception_handler(LoginCredentialsInvalid)
+async def login_credentials_invalid_handler(req: Request, exc: LoginCredentialsInvalid):
+    return JSONResponse(status_code=200, content={"error_detail": exc.message})
+
 
 origins = ["*"]
 
@@ -33,6 +62,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(clients.router)
 app.include_router(categories.router)
 app.include_router(sub_categories.router)

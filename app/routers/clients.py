@@ -1,25 +1,13 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    Form,
-    HTTPException,
-    Response,
-    UploadFile,
-    status,
-)
+from fastapi import (APIRouter, Depends, Form, HTTPException, Response,
+                     UploadFile, status)
 from pydantic import EmailStr
 from sqlmodel import Session, select
 from starlette.requests import Request
 
 from app.db.dependencies import get_session
-from app.models.clients import (
-    Client,
-    ClientCreate,
-    ClientRead,
-    ClientUpdate,
-    parse_client_from_date_to_client_create,
-    parse_client_from_date_to_client_update,
-)
+from app.models.clients import (Client, ClientCreate, ClientRead, ClientUpdate,
+                                parse_client_from_date_to_client_create,
+                                parse_client_from_date_to_client_update)
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
