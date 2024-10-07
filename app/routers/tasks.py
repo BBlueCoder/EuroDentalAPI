@@ -7,7 +7,8 @@ from app.db.dependencies import get_session
 from app.models.clients import Client
 from app.models.products import Product
 from app.models.task_products import TaskProduct
-from app.models.tasks import Task, TaskCreate, TaskFilterParams, TaskRead, TaskUpdate
+from app.models.tasks import (Task, TaskCreate, TaskFilterParams, TaskRead,
+                              TaskUpdate)
 from app.models.users import User
 from app.utils.global_utils import generate_the_address
 
@@ -65,14 +66,14 @@ async def get_tasks(
             task_read.client = f"{client.last_name} {client.first_name}"
             if client.image_id:
                 task_read.client_image = generate_the_address(
-                    req, f"images/{client.image_id}"
+                    req, f"/images/{client.image_id}"
                 )
 
         if user:
             task_read.technician = f"{user.last_name} {user.first_name}"
             if user.image_id:
                 task_read.technician_image = generate_the_address(
-                    req, f"images/{user.image_id}"
+                    req, f"/images/{user.image_id}"
                 )
 
         if product:

@@ -1,37 +1,49 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    Form,
-    HTTPException,
-    Response,
-    UploadFile,
-    status,
-)
-from pydantic import EmailStr
+from typing import Annotated
+
+from fastapi import (APIRouter, Depends, HTTPException, Query, Response,
+                     UploadFile, status)
 from sqlmodel import Session, select
 from starlette.requests import Request
 
 from app.db.dependencies import get_session
-from app.models.users import (
-    User,
-    UserCreate,
-    UserRead,
-    UserUpdate,
-    parse_user_from_data_to_user_create,
-    parse_user_from_data_to_user_update,
-)
+from app.models.profiles import Profile
+from app.models.users import (User, UserByProfile, UserCreate, UserRead,
+                              UserUpdate, parse_user_from_data_to_user_create,
+                              parse_user_from_data_to_user_update)
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/", response_model=list[UserRead])
-async def get_all_users(*, session: Session = Depends(get_session), req: Request):
-    users = session.exec(select(User)).all()
+@router.get("/")
+async def get_all_users(
+    *,
+    session: Session = Depends(get_session),
+    req: Request,
+    profile_name: Annotated[str | None, Query(max_length=25)] = None,
+):
+    statement = select(User)
+    if profile_name:
+        profile = session.exec(
+            select(Profile).where(Profile.profile_name == profile_name)
+        ).first()
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Profile Not Found"
+            )
+        statement = statement.where(User.profile_id == profile.id)
+    users = session.exec(statement).all()
     res = []
     for user in users:
-        res.append(model_to_model_read(user, req))
+        user_read = model_to_model_read(user, req)
+        if profile_name:
+            user_read = UserByProfile(
+                id=user_read.id,
+                image_path=user_read.image_path,
+                full_name=f"{user_read.last_name} {user_read.first_name}",
+            )
+        res.append(user_read)
 
     return res
 
@@ -52,7 +64,7 @@ async def create_user(
     session: Session = Depends(get_session),
     user: UserCreate = Depends(parse_user_from_data_to_user_create),
     image: UploadFile | None = None,
-    req: Request
+    req: Request,
 ):
     if image:
         db_image = await save_image(image, session)
@@ -73,7 +85,7 @@ async def update_user(
     user: UserUpdate = Depends(parse_user_from_data_to_user_update),
     image: UploadFile | None = None,
     user_id: int,
-    req: Request
+    req: Request,
 ):
     if image:
         db_image = await save_image(image, session)

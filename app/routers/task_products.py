@@ -2,12 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
 from app.db.dependencies import get_session
-from app.models.task_products import (
-    TaskProduct,
-    TaskProductCreate,
-    TaskProductRead,
-    TaskProductUpdate,
-)
+from app.models.task_products import (TaskProduct, TaskProductCreate,
+                                      TaskProductRead, TaskProductUpdate)
 
 router = APIRouter(prefix="/task_products", tags=["task_products"])
 

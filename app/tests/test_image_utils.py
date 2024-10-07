@@ -7,7 +7,8 @@ from app.errors.image_size_too_big import ImageSizeTooBig
 from app.errors.image_type_not_supported import ImageTypeNotSupported
 from app.models.images import Image
 from app.tests.conftest import UploadFileMock
-from app.utils.image_utils import save_image_to_db, save_image_to_disk, validate_image
+from app.utils.image_utils import (save_image_to_db, save_image_to_disk,
+                                   validate_image)
 
 
 def test_validating_valid_image(upload_file_mock: UploadFileMock):

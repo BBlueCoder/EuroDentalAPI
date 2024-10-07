@@ -2,12 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
 from app.db.dependencies import get_session
-from app.models.sub_categories import (
-    SubCategory,
-    SubCategoryCreate,
-    SubCategoryRead,
-    SubCategoryUpdate,
-)
+from app.models.sub_categories import (SubCategory, SubCategoryCreate,
+                                       SubCategoryRead, SubCategoryUpdate)
 
 router = APIRouter(prefix="/sub_categories", tags=["sub_categories"])
 
