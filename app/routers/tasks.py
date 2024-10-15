@@ -22,12 +22,12 @@ async def get_tasks(
     req: Request,
     filter_params: TaskFilterParams = TaskFilterParams(),
 ) -> list[TaskRead]:
-    statement: Select[tuple[Task, Client, User, TaskProduct, Product]] = (
-        select(Task, Client, User, TaskProduct, Product)
+    statement: Select[tuple[Task, Client, User, TaskProduct]] = (
+        select(Task, Client, User, TaskProduct)
         .join(Client, isouter=True)
         .join(User, User.id == Task.technician_id, isouter=True)
         .join(TaskProduct, isouter=True)
-        .join(Product, TaskProduct.product_reference == Product.reference, isouter=True)
+        # .join(Product, TaskProduct.product_reference == Product.reference, isouter=True)
     )
 
     if task_id:
@@ -60,7 +60,7 @@ async def get_tasks(
 
     mapped_results: list[TaskRead] = []
 
-    for task, client, user, task_product, product in tasks_with_details:
+    for task, client, user, task_product in tasks_with_details:
         task_read = TaskRead(**task.model_dump())
         if client:
             task_read.client = f"{client.last_name} {client.first_name}"
@@ -76,13 +76,13 @@ async def get_tasks(
                     req, f"/images/{user.image_id}"
                 )
 
-        if product:
-            if product.id_category:
-                task_read.id_category = product.id_category
-            if product.id_sub_category:
-                task_read.id_sub_category = product.id_sub_category
-            if product.id_brand:
-                task_read.id_brand = product.id_brand
+        # if product:
+        #     if product.id_category:
+        #         task_read.id_category = product.id_category
+        #     if product.id_sub_category:
+        #         task_read.id_sub_category = product.id_sub_category
+        #     if product.id_brand:
+        #         task_read.id_brand = product.id_brand
 
         mapped_results.append(task_read)
 

@@ -1,6 +1,4 @@
-import typing
-
-from passlib.handlers.pbkdf2 import pbkdf2_sha256
+import bcrypt
 from starlette.requests import Request
 
 
@@ -11,8 +9,12 @@ def generate_the_address(req: Request, extra_path: str):
 
 
 def hash_password(password: str) -> str:
-    return pbkdf2_sha256.hash(password)
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes,salt=salt)
+    return hashed_password.decode('utf-8')
 
 
 def verify_hashed_password(password: str, hashed_password: str):
-    return pbkdf2_sha256.verify(password, hashed_password)
+    pwd_bytes = password.encode('utf-8')
+    return bcrypt.checkpw(password=pwd_bytes,hashed_password=hashed_password.encode('utf-8'))

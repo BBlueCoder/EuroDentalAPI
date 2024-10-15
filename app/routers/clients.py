@@ -42,10 +42,7 @@ async def create_client(
     image: UploadFile | None = None,
     req: Request
 ):
-    print("-------------------------------------------------------")
-    print(image)
     if image:
-        print("*********************************** received image!")
         db_image = await save_image(image, session)
         if db_image:
             client.image_id = db_image.id
