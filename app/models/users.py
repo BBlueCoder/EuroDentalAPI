@@ -62,6 +62,10 @@ class UserByProfile(SQLModel):
     image_path: str | None = None
     full_name: str | None = None
 
+class Tokens(SQLModel):
+    access_token : str
+    refresh_token : str
+
 
 class UserLogin(SQLModel):
     email: EmailStr = Field(..., description="Email address, must be unique")
