@@ -11,15 +11,18 @@ from app.models.products import (Product, ProductCreate, ProductRead,
                                  parse_product_from_data_to_product_create,
                                  parse_product_from_data_to_product_update)
 from app.models.sub_categories import SubCategory
+from app.models.users import User
+from app.routers.auth import authorize
+from app.utils.global_utils import global_prefix
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix=f"{global_prefix}/products", tags=["products"])
 
 
 async def get_products(
     *, product_id: int | None = None, session: Session, req: Request
-):
+,user : User = Depends(authorize)):
     statement = (
         select(Product, Category, SubCategory, Brand)
         .join(Category, isouter=True)
@@ -49,14 +52,14 @@ async def get_products(
 
 
 @router.get("/", response_model=list[ProductRead])
-async def get_all_products(*, session: Session = Depends(get_session), req: Request):
+async def get_all_products(*, session: Session = Depends(get_session), req: Request,user : User = Depends(authorize)):
     return await get_products(session=session, req=req)
 
 
 @router.get("/{product_id}", response_model=ProductRead)
 async def get_product_by_id(
     *, session: Session = Depends(get_session), product_id: int, req: Request
-):
+,user : User = Depends(authorize)):
     product = await get_products(product_id=product_id, session=session, req=req)
     if not product:
         raise HTTPException(status_code=404, detail="Product Not Found")
@@ -70,7 +73,7 @@ async def create_product(
     product: ProductCreate = Depends(parse_product_from_data_to_product_create),
     image: UploadFile | None = None,
     req: Request
-):
+,user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -91,7 +94,7 @@ async def update_product(
     image: UploadFile | None = None,
     product_id: int,
     req: Request
-):
+,user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -109,7 +112,7 @@ async def update_product(
 
 
 @router.delete("/{product_id}")
-async def delete_product(*, session: Session = Depends(get_session), product_id: int):
+async def delete_product(*, session: Session = Depends(get_session), product_id: int,user : User = Depends(authorize)):
     product = session.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product Not Found")

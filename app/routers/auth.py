@@ -1,6 +1,8 @@
 from datetime import timedelta, datetime, timezone
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt import InvalidTokenError
 from sqlmodel import Session, select
 import jwt
@@ -8,11 +10,11 @@ import jwt
 from app.core.config import token_settings
 from app.db.dependencies import get_session
 from app.errors.login_credentials_invalid import LoginCredentialsInvalid
-from app.models.users import User, UserLogin, UserRead, Tokens
-from app.utils.global_utils import verify_hashed_password
+from app.models.users import User, UserLogin, Tokens
+from app.utils.global_utils import verify_hashed_password, global_prefix
 
-router = APIRouter(prefix="", tags=["auth"])
-oauth_scheme = OAuth2PasswordBearer(tokenUrl='/token')
+router = APIRouter(prefix=f"{global_prefix}", tags=["auth"])
+oauth_scheme = OAuth2PasswordBearer(tokenUrl=f'{global_prefix}/login')
 
 def authenticate_user(session : Session ,credentials: UserLogin):
     user = session.exec(select(User).where(User.email == credentials.email)).first()
@@ -43,14 +45,15 @@ async def authorize(token: str = Depends(oauth_scheme), session : Session = Depe
         user = session.get(User,user_id)
         if not user:
             raise LoginCredentialsInvalid(message="Invalid Token")
-        return create_tokens(user)
+        return user
     except InvalidTokenError:
         raise LoginCredentialsInvalid(message="Invalid Token")
 
 @router.post("/login", response_model=Tokens)
 async def login(
-    *, session: Session = Depends(get_session), credentials: UserLogin
+    *, session: Session = Depends(get_session), form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
+    credentials = UserLogin(email=form_data.username,password=form_data.password)
     user = authenticate_user(session,credentials)
     if not user:
         raise LoginCredentialsInvalid()
@@ -58,7 +61,7 @@ async def login(
     return create_tokens(user)
 
 @router.post("/refresh_token", response_model=Tokens)
-async def refresh_token(*, tokens : Tokens = Depends(authorize)):
-    return tokens
+async def refresh_token(*, user : User = Depends(authorize)):
+    return create_tokens(user)
 
 

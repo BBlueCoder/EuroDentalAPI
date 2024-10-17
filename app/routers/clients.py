@@ -8,14 +8,17 @@ from app.db.dependencies import get_session
 from app.models.clients import (Client, ClientCreate, ClientRead, ClientUpdate,
                                 parse_client_from_date_to_client_create,
                                 parse_client_from_date_to_client_update)
+from app.models.users import User
+from app.routers.auth import authorize
+from app.utils.global_utils import global_prefix
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
-router = APIRouter(prefix="/clients", tags=["clients"])
+router = APIRouter(prefix=f"{global_prefix}/clients", tags=["clients"])
 
 
 @router.get("/", response_model=list[ClientRead])
-async def get_all_clients(*, session: Session = Depends(get_session), req: Request):
+async def get_all_clients(*, session: Session = Depends(get_session), req: Request,user : User = Depends(authorize)):
     clients = session.exec(select(Client)).all()
     res = []
     for client in clients:
@@ -27,7 +30,7 @@ async def get_all_clients(*, session: Session = Depends(get_session), req: Reque
 @router.get("/{client_id}", response_model=ClientRead)
 async def get_client_by_id(
     *, session: Session = Depends(get_session), client_id: int, req: Request
-):
+,user : User = Depends(authorize)):
     client = session.get(Client, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client Not Found")
@@ -41,7 +44,7 @@ async def create_client(
     client: ClientCreate = Depends(parse_client_from_date_to_client_create),
     image: UploadFile | None = None,
     req: Request
-):
+,user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -62,7 +65,7 @@ async def update_client(
     image: UploadFile | None = None,
     client_id: int,
     req: Request
-):
+,user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -80,7 +83,7 @@ async def update_client(
 
 
 @router.delete("/{client_id}")
-async def delete_client(*, session: Session = Depends(get_session), client_id: int):
+async def delete_client(*, session: Session = Depends(get_session), client_id: int,user : User = Depends(authorize)):
     client = session.get(Client, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client Not Found")

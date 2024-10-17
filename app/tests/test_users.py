@@ -3,7 +3,9 @@ from fastapi import status
 from starlette.testclient import TestClient
 
 from app.models.profiles import Profile
+from app.utils.global_utils import global_prefix
 
+USERS_PATH = f"{global_prefix}/users"
 
 @pytest.fixture(name="user")
 def user_fixture(profile: Profile):
@@ -11,38 +13,38 @@ def user_fixture(profile: Profile):
 
 
 def test_get_all_users(client: TestClient):
-    res = client.get("/users")
+    res = client.get(USERS_PATH)
     assert res.status_code == status.HTTP_200_OK
 
 
 def test_create_user(client: TestClient, user):
-    res = client.post("/users", data=user)
+    res = client.post(USERS_PATH, data=user)
     assert res.status_code == status.HTTP_200_OK
 
 
 def test_create_and_get_users(client: TestClient, user):
-    client.post("/users", data=user)
+    client.post(USERS_PATH, data=user)
 
-    res = client.get("/users")
+    res = client.get(USERS_PATH)
     assert res.status_code == status.HTTP_200_OK
     assert len(res.json()) == 1
 
 
 def test_get_not_found_user_by_id(client: TestClient):
-    res = client.get("/users/1")
+    res = client.get(f"{USERS_PATH}/1")
     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_create_user_get_user_by_id(client: TestClient, user):
-    client.post("/users", data=user)
+    client.post(USERS_PATH, data=user)
 
-    res = client.get("/users/1")
+    res = client.get(f"{USERS_PATH}/1")
     assert res.status_code == status.HTTP_200_OK
     assert res.json().get("email") == user["email"]
 
 
 def test_create_user_without_email(client: TestClient):
-    res = client.post("/users")
+    res = client.post(USERS_PATH)
     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
@@ -55,10 +57,10 @@ def test_create_user_without_email(client: TestClient):
     ],
 )
 def test_update_user(client: TestClient, first_name, last_name, user):
-    user_data = client.post("/users", data=user).json()
+    user_data = client.post(USERS_PATH, data=user).json()
 
     res = client.put(
-        f"/users/{user_data["id"]}",
+        f"{USERS_PATH}/{user_data["id"]}",
         data={"first_name": first_name, "last_name": last_name},
     )
     assert res.status_code == status.HTTP_200_OK
@@ -67,17 +69,17 @@ def test_update_user(client: TestClient, first_name, last_name, user):
 
 
 def test_update_invalid_user(client: TestClient):
-    res = client.put("/users/1", data={"first_name": "test"})
+    res = client.put(f"{USERS_PATH}/1", data={"first_name": "test"})
     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_delete_user(client: TestClient, user):
-    user_data = client.post("/users", data=user).json()
+    user_data = client.post(USERS_PATH, data=user).json()
 
-    res = client.delete(f"/users/{user_data["id"]}")
+    res = client.delete(f"{USERS_PATH}/{user_data["id"]}")
     assert res.status_code == status.HTTP_204_NO_CONTENT
 
 
 def test_delete_invalid_user(client: TestClient):
-    res = client.delete("/users/1")
+    res = client.delete(f"{USERS_PATH}/1")
     assert res.status_code == status.HTTP_404_NOT_FOUND

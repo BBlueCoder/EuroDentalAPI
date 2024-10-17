@@ -12,6 +12,7 @@ from app.models.clients import Client
 from app.models.products import Product
 from app.models.profiles import Profile
 from app.models.users import User, UserUpdate
+from app.routers.auth import oauth_scheme, authorize
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -31,7 +32,16 @@ def client_fixture(session: Session):
     def get_session_override():
         return session
 
+
+    def oauth_scheme_override():
+        return "token"
+
+    def authorize_override():
+        return User()
+
     app.dependency_overrides[get_session] = get_session_override
+    app.dependency_overrides[oauth_scheme] = oauth_scheme_override
+    app.dependency_overrides[authorize] = authorize_override
 
     yield TestClient(app)
 

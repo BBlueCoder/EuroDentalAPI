@@ -10,17 +10,18 @@ from app.models.task_products import TaskProduct
 from app.models.tasks import (Task, TaskCreate, TaskFilterParams, TaskRead,
                               TaskUpdate)
 from app.models.users import User
-from app.utils.global_utils import generate_the_address
+from app.routers.auth import authorize
+from app.utils.global_utils import generate_the_address, global_prefix
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix=f"{global_prefix}/tasks", tags=["tasks"])
 
 
 async def get_tasks(
-    *,
-    task_id: int | None = None,
-    session: Session,
-    req: Request,
-    filter_params: TaskFilterParams = TaskFilterParams(),
+        *,
+        task_id: int | None = None,
+        session: Session,
+        req: Request,
+        filter_params: TaskFilterParams = TaskFilterParams(),
 ) -> list[TaskRead]:
     statement: Select[tuple[Task, Client, User, TaskProduct]] = (
         select(Task, Client, User, TaskProduct)
@@ -91,18 +92,18 @@ async def get_tasks(
 
 @router.get("/", response_model=list[TaskRead])
 async def get_all_tasks(
-    *,
-    session: Session = Depends(get_session),
-    req: Request,
-    filter_params: TaskFilterParams = Depends(),
-):
+        *,
+        session: Session = Depends(get_session),
+        req: Request,
+        filter_params: TaskFilterParams = Depends()
+        , user: User = Depends(authorize)):
     return await get_tasks(session=session, req=req, filter_params=filter_params)
 
 
 @router.get("/{task_id}", response_model=TaskRead)
 async def get_task_by_id(
-    *, session: Session = Depends(get_session), task_id: int, req: Request
-):
+        *, session: Session = Depends(get_session), task_id: int, req: Request
+        , user: User = Depends(authorize)):
     task = await get_tasks(task_id=task_id, session=session, req=req)
     if not task:
         raise HTTPException(status_code=404, detail="Task Not Found")
@@ -111,8 +112,8 @@ async def get_task_by_id(
 
 @router.post("/", response_model=TaskRead)
 async def create_task(
-    *, session: Session = Depends(get_session), task: TaskCreate, req: Request
-):
+        *, session: Session = Depends(get_session), task: TaskCreate, req: Request
+        , user: User = Depends(authorize)):
     db_task = Task.model_validate(task)
     session.add(db_task)
     session.commit()
@@ -122,12 +123,12 @@ async def create_task(
 
 @router.put("/{task_id}", response_model=TaskRead)
 async def update_task(
-    *,
-    session: Session = Depends(get_session),
-    task: TaskUpdate,
-    task_id: int,
-    req: Request,
-):
+        *,
+        session: Session = Depends(get_session),
+        task: TaskUpdate,
+        task_id: int,
+        req: Request
+        , user: User = Depends(authorize)):
     db_task = session.get(Task, task_id)
     if not db_task:
         raise HTTPException(status_code=404, detail="Task Not Found")
@@ -140,7 +141,7 @@ async def update_task(
 
 
 @router.delete("/{task_id}")
-async def delete_task(*, session: Session = Depends(get_session), task_id: int):
+async def delete_task(*, session: Session = Depends(get_session), task_id: int, user: User = Depends(authorize)):
     task = session.get(Task, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task Not Found")

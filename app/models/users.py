@@ -21,6 +21,12 @@ class UserBase(SQLModel):
     image_id: int | None = Field(
         None, description="id of the client's image", foreign_key="images.id"
     )
+    city: str | None = Field(
+        None, description="City"
+    )
+    address: str | None = Field(
+        None, description="Address"
+    )
 
 
 class User(UserBase, table=True):
@@ -62,9 +68,10 @@ class UserByProfile(SQLModel):
     image_path: str | None = None
     full_name: str | None = None
 
+
 class Tokens(SQLModel):
-    access_token : str
-    refresh_token : str
+    access_token: str
+    refresh_token: str
 
 
 class UserLogin(SQLModel):
@@ -75,23 +82,29 @@ class UserLogin(SQLModel):
 
 
 def parse_user_from_data_to_user_create(
-    first_name: str | None = Form(
-        None, max_length=100, description="First name, up to 100 characters"
-    ),
-    last_name: str | None = Form(
-        None, max_length=100, description="Last name, up to 100 characters"
-    ),
-    password: str = Form(
-        ..., max_length=255, description="Password, up to 255 characters"
-    ),
-    phone_number: str | None = Form(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
-    ),
-    is_blocked: bool | None = Form(
-        None, description="Indicates if the user is blocked"
-    ),
-    profile_id: int = Form(..., foreign_key="profiles.id"),
-    email: EmailStr = Form(..., description="Email address, must be unique"),
+        first_name: str | None = Form(
+            None, max_length=100, description="First name, up to 100 characters"
+        ),
+        last_name: str | None = Form(
+            None, max_length=100, description="Last name, up to 100 characters"
+        ),
+        password: str = Form(
+            ..., max_length=255, description="Password, up to 255 characters"
+        ),
+        phone_number: str | None = Form(
+            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        ),
+        is_blocked: bool | None = Form(
+            None, description="Indicates if the user is blocked"
+        ),
+        profile_id: int = Form(..., foreign_key="profiles.id"),
+        email: EmailStr = Form(..., description="Email address, must be unique"),
+        city: str | None = Form(
+            None, description="City"
+        ),
+        address: str | None = Form(
+            None, description="Address"
+        )
 ):
     return UserCreate(
         first_name=first_name,
@@ -101,27 +114,35 @@ def parse_user_from_data_to_user_create(
         is_blocked=is_blocked,
         profile_id=profile_id,
         email=email,
+        city=city,
+        address=address
     )
 
 
 def parse_user_from_data_to_user_update(
-    first_name: str | None = Form(
-        None, max_length=100, description="First name, up to 100 characters"
-    ),
-    last_name: str | None = Form(
-        None, max_length=100, description="Last name, up to 100 characters"
-    ),
-    password: str | None = Form(
-        None, max_length=255, description="Password, up to 255 characters"
-    ),
-    phone_number: str | None = Form(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
-    ),
-    is_blocked: bool | None = Form(
-        None, description="Indicates if the user is blocked"
-    ),
-    email: EmailStr | None = Form(default=None),
-    profile_id: int | None = Form(None, foreign_key="profiles.id"),
+        first_name: str | None = Form(
+            None, max_length=100, description="First name, up to 100 characters"
+        ),
+        last_name: str | None = Form(
+            None, max_length=100, description="Last name, up to 100 characters"
+        ),
+        password: str | None = Form(
+            None, max_length=255, description="Password, up to 255 characters"
+        ),
+        phone_number: str | None = Form(
+            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        ),
+        is_blocked: bool | None = Form(
+            None, description="Indicates if the user is blocked"
+        ),
+        email: EmailStr | None = Form(default=None),
+        profile_id: int | None = Form(None, foreign_key="profiles.id"),
+        city: str | None = Form(
+            None, description="City"
+        ),
+        address: str | None = Form(
+            None, description="Address"
+        )
 ):
     user_update = UserUpdate()
     if first_name:
@@ -138,5 +159,9 @@ def parse_user_from_data_to_user_update(
         user_update.email = email
     if profile_id:
         user_update.profile_id = profile_id
+    if city:
+        user_update.city = city
+    if address:
+        user_update.address = address
 
     return user_update

@@ -2,7 +2,9 @@ import pytest
 from fastapi import status
 from starlette.testclient import TestClient
 
-CATEGORIES_PATH = "/categories"
+from app.utils.global_utils import global_prefix
+
+CATEGORIES_PATH = f"{global_prefix}/categories"
 categories = [
     "category1",
     "category2",

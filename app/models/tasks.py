@@ -43,8 +43,8 @@ class TaskWithIDs(TaskBase):
         description="ID of the client associated with the task, required field.",
         foreign_key="clients.id",
     )
-    status: str = Field(
-        max_length=50, description="Current status of the task, required field."
+    status: str |None = Field(
+        "Unassigned",max_length=50, description="Current status of the task, required field."
     )
 
 

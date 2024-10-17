@@ -2,7 +2,9 @@ import pytest
 from fastapi import status
 from starlette.testclient import TestClient
 
-BRANDS_PATH = "/brands"
+from app.utils.global_utils import global_prefix
+
+BRANDS_PATH = f"{global_prefix}/brands"
 brands = [
     "brand1",
     "brand2",
