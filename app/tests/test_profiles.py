@@ -2,7 +2,9 @@ import pytest
 from fastapi import status
 from starlette.testclient import TestClient
 
-PROFILES_PATH = "/profiles"
+from app.utils.global_utils import global_prefix
+
+PROFILES_PATH = f"{global_prefix}/profiles"
 profiles = [
     "profile1",
     "profile2",

@@ -6,12 +6,15 @@ from starlette.responses import FileResponse
 
 from app.db.dependencies import get_session
 from app.models.images import Image
+from app.models.users import User
+from app.routers.auth import authorize
+from app.utils.global_utils import global_prefix
 
-router = APIRouter(prefix="/images", tags=["images"])
+router = APIRouter(prefix=f"{global_prefix}/images", tags=["images"])
 
 
 @router.get("/{image_id}")
-async def serve_image(*, session: Session = Depends(get_session), image_id: int):
+async def serve_image(*, session: Session = Depends(get_session), image_id: int, user : User = Depends(authorize)):
     db_image = session.get(Image, image_id)
     if not db_image:
         raise HTTPException(status_code=404, detail="Image Not Found")

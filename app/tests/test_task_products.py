@@ -10,8 +10,9 @@ from app.models.clients import Client
 from app.models.products import Product
 from app.models.tasks import Task
 from app.models.users import User
+from app.utils.global_utils import global_prefix
 
-TASK_PRODUCTS_PATH = "/task_products"
+TASK_PRODUCTS_PATH = f"{global_prefix}/task_products"
 task_products = [
     "task_product1",
     "task_product2",

@@ -1,6 +1,8 @@
 import bcrypt
 from starlette.requests import Request
 
+global_prefix = "/api/v1"
+
 
 def generate_the_address(req: Request, extra_path: str):
     if req.url.port:

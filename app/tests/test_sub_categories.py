@@ -3,16 +3,17 @@ from fastapi import status
 from starlette.testclient import TestClient
 
 from app.models.categories import CategoryRead
+from app.utils.global_utils import global_prefix
 
-SUB_CATEGORIES_PATH = "/sub_categories"
+SUB_CATEGORIES_PATH = f"{global_prefix}/sub_categories"
 
 
 @pytest.fixture(name="categories")
 def categories_fixture(client: TestClient):
-    client.post("/categories", json={"category": "category1"})
-    client.post("/categories", json={"category": "category2"})
+    client.post(f"{global_prefix}/categories", json={"category": "category1"})
+    client.post(f"{global_prefix}/categories", json={"category": "category2"})
 
-    res = client.get("/categories")
+    res = client.get(f"{global_prefix}/categories")
     categories = [CategoryRead(**category) for category in res.json()]
 
     return categories

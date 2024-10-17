@@ -1,15 +1,14 @@
 import pytest
 from fastapi import status
-from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from app.models.clients import Client
 from app.models.products import Product
-from app.models.tasks import Task
 from app.models.users import User
 from app.tests.test_task_products import TASK_PRODUCTS_PATH
+from app.utils.global_utils import global_prefix
 
-TASKS_PATH = "/tasks"
+TASKS_PATH = f"{global_prefix}/tasks"
 tasks = [
     "task1",
     "task2",

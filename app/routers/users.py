@@ -10,10 +10,12 @@ from app.models.profiles import Profile
 from app.models.users import (User, UserByProfile, UserCreate, UserRead,
                               UserUpdate, parse_user_from_data_to_user_create,
                               parse_user_from_data_to_user_update)
+from app.routers.auth import authorize
+from app.utils.global_utils import global_prefix
 from app.utils.image_utils import save_image
 from app.utils.map_model_to_model_read import model_to_model_read
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix=f"{global_prefix}/users", tags=["users"])
 
 
 @router.get("/")
@@ -22,7 +24,7 @@ async def get_all_users(
     session: Session = Depends(get_session),
     req: Request,
     profile_name: Annotated[str | None, Query(max_length=25)] = None,
-):
+    user : User = Depends(authorize)):
     statement = select(User)
     if profile_name:
         profile = session.exec(
@@ -51,7 +53,7 @@ async def get_all_users(
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
     *, session: Session = Depends(get_session), user_id: int, req: Request
-):
+,user : User = Depends(authorize)):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User Not Found")
@@ -65,7 +67,7 @@ async def create_user(
     user: UserCreate = Depends(parse_user_from_data_to_user_create),
     image: UploadFile | None = None,
     req: Request,
-):
+current_user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -85,8 +87,8 @@ async def update_user(
     user: UserUpdate = Depends(parse_user_from_data_to_user_update),
     image: UploadFile | None = None,
     user_id: int,
-    req: Request,
-):
+    req: Request
+,current_user : User = Depends(authorize)):
     if image:
         db_image = await save_image(image, session)
         if db_image:
@@ -104,7 +106,7 @@ async def update_user(
 
 
 @router.delete("/{user_id}")
-async def delete_user(*, session: Session = Depends(get_session), user_id: int):
+async def delete_user(*, session: Session = Depends(get_session), user_id: int,user : User = Depends(authorize)):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User Not Found")
