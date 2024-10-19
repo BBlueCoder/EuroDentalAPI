@@ -61,6 +61,7 @@ class UserRead(UserBase):
     email: EmailStr = Field(..., description="Email address, must be unique")
     image_path: str | None = None
     profile_id: int = Field(..., foreign_key="profiles.id")
+    profile : str | None = None
 
 
 class UserByProfile(SQLModel):

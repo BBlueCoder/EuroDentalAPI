@@ -12,7 +12,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import SQLModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
+from starlette.responses import FileResponse
 
+from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
 from .routers import (auth, brands, categories, clients, images, products,
                       profiles, sub_categories, task_products, tasks, users)
@@ -25,6 +27,13 @@ async def integrity_error_handler(_, exc: IntegrityError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"error_detail": jsonable_encoder(str(exc.__dict__["orig"]))},
+    )
+
+@app.exception_handler(ItemNotFound)
+async def item_not_found_error_handler(_, exc: ItemNotFound):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error_detail": exc.message},
     )
 
 
@@ -49,7 +58,7 @@ async def validation_exception_handler(req, exc: RequestValidationError):
 
 @app.exception_handler(LoginCredentialsInvalid)
 async def login_credentials_invalid_handler(req: Request, exc: LoginCredentialsInvalid):
-    return JSONResponse(status_code=200, content={"error_detail": exc.message})
+    return JSONResponse(status_code=exc.status_code, content={"error_detail": exc.message})
 
 
 origins = ["*"]
@@ -82,16 +91,20 @@ async def root(req: Request):
         "message": f"Hello from server {req.url.scheme}://{req.url.hostname}:{req.url.port} !!!"
     }
 
+@app.get("/logs")
+async def logs():
+    file_path = "logfile.log"
+    return FileResponse(path=file_path, filename="logfile.log")
 
-class FormImage(BaseModel):
-    text: str
-    date: str
-
-
-def parse_form_date(text: str = Form(...), date: str = Form(...)):
-    return FormImage(text=text, date=date)
-
-
-@app.post("/upload")
-async def upload(*, form: FormImage = Depends(parse_form_date), image: UploadFile):
-    return {"image_details": form}
+# class FormImage(BaseModel):
+#     text: str
+#     date: str
+#
+#
+# def parse_form_date(text: str = Form(...), date: str = Form(...)):
+#     return FormImage(text=text, date=date)
+#
+#
+# @app.post("/upload")
+# async def upload(*, form: FormImage = Depends(parse_form_date), image: UploadFile):
+#     return {"image_details": form}
