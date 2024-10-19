@@ -1,11 +1,14 @@
 import time
-
+from typing import TypeVar, Type
 from fastapi import UploadFile
 from sqlmodel import Session
 
 from app.errors.image_size_too_big import ImageSizeTooBig
 from app.errors.image_type_not_supported import ImageTypeNotSupported
+from app.models.clients import Client, ClientCreate
 from app.models.images import Image, ImageCreate
+from app.models.products import Product, ProductCreate
+from app.models.users import User
 
 
 async def save_image_to_disk(image: UploadFile, path: str):
@@ -30,6 +33,15 @@ async def save_image(image: UploadFile, session: Session):
     image.file.seek(0)
     image_name = await save_image_to_disk(image, "images")
     return await save_image_to_db(session=session, image_name=image_name)
+
+ImageEntity = TypeVar("ImageEntity", bound= Client | Product | User)
+
+async def add_image_to_entity(entity : ImageEntity, session : Session, image):
+    if image:
+        db_image = await save_image(image, session)
+        if db_image:
+            entity.image_id = db_image.id
+    return entity
 
 
 def validate_image(image: UploadFile):

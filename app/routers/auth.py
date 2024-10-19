@@ -64,4 +64,3 @@ async def login(
 async def refresh_token(*, user : User = Depends(authorize)):
     return create_tokens(user)
 
-
