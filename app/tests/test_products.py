@@ -68,6 +68,29 @@ def test_update_product(client: TestClient, product_name):
     assert res.json().get("product_name") == product_name
     assert res.json().get("price") == 33.5
 
+def test_update_products_quantity(client : TestClient):
+    product_data_1 = client.post(
+        PRODUCTS_PATH,
+        data={"product_name": "product", "reference": "ref001", "price": 33.5},
+    ).json()
+    product_data_2 = client.post(
+        PRODUCTS_PATH,
+        data={"product_name": "product2", "reference": "ref002", "stock_quantity":5},
+    ).json()
+
+    data = [
+        {"reference":product_data_1["reference"],"stock_quantity":3},
+        {"reference": product_data_2["reference"], "stock_quantity": 6}
+    ]
+    client.put(f"{PRODUCTS_PATH}/quantity",json=data)
+
+    res = client.get(f"{PRODUCTS_PATH}/{product_data_1["id"]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()["stock_quantity"] == 3
+    res = client.get(f"{PRODUCTS_PATH}/{product_data_2["id"]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()["stock_quantity"] == 11
+
 
 def test_update_invalid_product(client: TestClient):
     res = client.put(f"{PRODUCTS_PATH}/1", data={"product_name": "test"})

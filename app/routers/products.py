@@ -10,7 +10,7 @@ from app.models.categories import Category
 from app.models.products import (Product, ProductCreate, ProductRead,
                                  ProductUpdate,
                                  parse_product_from_data_to_product_create,
-                                 parse_product_from_data_to_product_update)
+                                 parse_product_from_data_to_product_update, ProductAddQuantity)
 from app.models.sub_categories import SubCategory
 from app.models.users import User
 from app.routers.auth import authorize
@@ -46,6 +46,17 @@ async def create_product(
     controller = ProductsController(session,req)
     return await controller.create_product(product,image)
 
+
+@router.put("/quantity")
+async def update_products_quantity(
+        *,
+        session : Session = Depends(get_session),
+        products : list[ProductAddQuantity],
+        user : User = Depends(authorize)
+):
+    controller = ProductsController(session)
+    await controller.update_products_quantity(products)
+    return {"message": "Stock quantities updated successfully"}
 
 @router.put("/{product_id}", response_model=ProductRead)
 async def update_product(

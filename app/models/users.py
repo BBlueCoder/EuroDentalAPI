@@ -16,7 +16,7 @@ class UserBase(SQLModel):
         None, min_length=10, max_length=10, description="Phone number, 10 digits"
     )
     is_blocked: bool | None = Field(
-        None, description="Indicates if the user is blocked"
+        False, description="Indicates if the user is blocked"
     )
     image_id: int | None = Field(
         None, description="id of the client's image", foreign_key="images.id"
@@ -79,6 +79,9 @@ class Tokens(SQLModel):
     last_name : str = None
     profile : str = None
     profile_id : int
+
+class BlockedIDs(SQLModel):
+    user_ids : list[int]
 
 
 class UserLogin(SQLModel):

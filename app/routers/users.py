@@ -1,20 +1,17 @@
 from typing import Annotated
 
-from fastapi import (APIRouter, Depends, HTTPException, Query, Response,
+from fastapi import (APIRouter, Depends, Query, Response,
                      UploadFile, status)
-from sqlmodel import Session, select
+from sqlmodel import Session
 from starlette.requests import Request
 
 from app.controllers.users_controller import UsersController
 from app.db.dependencies import get_session
-from app.models.profiles import Profile
-from app.models.users import (User, UserByProfile, UserCreate, UserRead,
+from app.models.users import (User, UserCreate, UserRead,
                               UserUpdate, parse_user_from_data_to_user_create,
-                              parse_user_from_data_to_user_update)
+                              parse_user_from_data_to_user_update, BlockedIDs)
 from app.routers.auth import authorize
 from app.utils.global_utils import global_prefix
-from app.utils.image_utils import save_image
-from app.utils.map_model_to_model_read import model_to_model_read
 
 router = APIRouter(prefix=f"{global_prefix}/users", tags=["users"])
 
@@ -48,6 +45,17 @@ async def create_user(
 current_user : User = Depends(authorize)):
     controller = UsersController(session,req)
     return await controller.create_user(user,image)
+
+@router.post("/block_users")
+async def block_users(
+        *,
+        session : Session = Depends(get_session),
+        blocked_ids : BlockedIDs,
+        user : User = Depends(authorize)
+):
+    controller = UsersController(session)
+    await controller.block_users(blocked_ids)
+    return {"message":"Blocked users successfully"}
 
 
 @router.put("/{user_id}", response_model=UserRead)

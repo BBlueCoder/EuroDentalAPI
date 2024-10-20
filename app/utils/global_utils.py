@@ -7,7 +7,7 @@ global_prefix = "/api/v1"
 def generate_the_address(req: Request, extra_path: str):
     if req.url.port:
         return f"{req.url.scheme}://{req.url.hostname}:{req.url.port}{global_prefix}{extra_path}"
-    return f"{req.url.scheme}://{req.url.hostname}{extra_path}"
+    return f"{req.url.scheme}://{req.url.hostname}{global_prefix}{extra_path}"
 
 
 def hash_password(password: str) -> str:

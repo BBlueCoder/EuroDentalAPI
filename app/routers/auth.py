@@ -22,6 +22,8 @@ async def authenticate_user(session : Session ,credentials: UserLogin):
     user_controller = UsersController(session)
     try:
         user = await user_controller.get_user_by_email(credentials.email)
+        if user.is_blocked:
+            return False
     except ItemNotFound:
         return False
     if not verify_hashed_password(credentials.password, user.password_hash):

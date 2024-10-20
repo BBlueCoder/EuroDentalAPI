@@ -1,5 +1,4 @@
 from datetime import date
-from email.policy import default
 from enum import Enum
 from typing import Literal
 
@@ -10,6 +9,7 @@ class Status(str, Enum):
     unassigned = "Unassigned"
     in_progress = "In Progress"
     completed = "Completed"
+
 
 class TaskBase(SQLModel):
     task_name: str | None = Field(
@@ -49,7 +49,7 @@ class TaskWithIDs(TaskBase):
         description="ID of the client associated with the task, required field.",
         foreign_key="clients.id",
     )
-    status: str |None = Field(
+    status: str | None = Field(
         Status.unassigned.value,max_length=50, description="Current status of the task, required field."
     )
 

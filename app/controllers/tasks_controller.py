@@ -1,10 +1,10 @@
-from sqlalchemy.testing.suite.test_reflection import users
-from sqlmodel import Session, select, and_, desc, asc
+from sqlmodel import Session, select, and_, desc, asc, update
 
 from app.controllers.BaseController import BaseController
 from app.models.clients import Client
 from app.models.task_products import TaskProduct
 from app.models.tasks import Task, TaskCreate, TaskUpdate, TaskRead, TaskFilterParams, Status
+from app.models.tasks_assignment import TasksAssignment
 from app.models.users import User
 from app.utils.global_utils import generate_the_address
 
@@ -93,9 +93,19 @@ class TasksController(BaseController):
         if not task.create_by:
             task.create_by = self.current_user.id
         if task.technician_id:
-            task.status = Status.in_progress
+            task.status = Status.in_progress.value
         db_task = await super().create_item(task)
         return await self.get_task_with_details_by_id(db_task.id)
+
+    async def assign_tasks_to_technician(self, tasks : TasksAssignment):
+        for task_id in tasks.task_ids:
+            self.session.exec(
+                update(Task)
+                .where(Task.id == task_id)
+                .values(technician_id=tasks.technician_id)
+            )
+
+        self.session.commit()
 
     async def update_task(self, task : TaskUpdate, task_id : int):
         db_task = await super().update_item(updated_item=task, item_id=task_id)
