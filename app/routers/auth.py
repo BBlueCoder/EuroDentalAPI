@@ -52,7 +52,8 @@ async def authorize(token: str = Depends(oauth_scheme), session : Session = Depe
         user_id : int = data.get("id")
         if not user_id:
             raise LoginCredentialsInvalid(message="Invalid Token")
-        user = session.get(User,user_id)
+        user_controller = UsersController(session)
+        user = await user_controller.get_user_by_id(user_id)
         if not user:
             raise LoginCredentialsInvalid(message="Invalid Token")
         return user
