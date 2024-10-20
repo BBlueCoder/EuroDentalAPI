@@ -24,6 +24,7 @@ def task_fixture(client_db: Client, user_db: User):
         "task_name": "task1",
         "client_id": client_db.id,
         "create_by": user_db.id,
+        "status":"In Progress"
     }
 
 
@@ -77,6 +78,22 @@ def save_tasks_fixture(client: TestClient, task: dict):
         client.post(TASKS_PATH, json=task)
 
     return ""
+
+def test_assign_tasks_to_technician(client : TestClient, user_db, save_tasks):
+    res = client.post(f"{TASKS_PATH}/assign_tasks",json={
+        "task_ids":[
+            1,
+            2,
+            3
+        ],
+        "technician_id":user_db.id
+    })
+
+    assert res.status_code == status.HTTP_200_OK
+    for idx, task_name in enumerate(tasks):
+        res = client.get(f"{TASKS_PATH}/{idx+1}")
+        assert res.status_code == status.HTTP_200_OK
+        assert res.json()["technician_id"] == user_db.id
 
 
 def test_get_tasks_sorted_by_date_desc(client: TestClient, save_tasks):

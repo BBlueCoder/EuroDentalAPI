@@ -1,10 +1,12 @@
+from itertools import product
+
 from sqlmodel import Session, select
 from starlette.requests import Request
 
 from app.controllers.BaseController import BaseController
 from app.models.brands import Brand
 from app.models.categories import Category
-from app.models.products import Product, ProductCreate, ProductUpdate
+from app.models.products import Product, ProductCreate, ProductUpdate, ProductAddQuantity
 from app.models.sub_categories import SubCategory
 from app.utils.image_utils import add_image_to_entity
 from app.utils.map_model_to_model_read import model_to_model_read
@@ -58,6 +60,34 @@ class ProductsController(BaseController):
         product = await add_image_to_entity(product, self.session, image)
         db_product = await super().update_item(updated_item=product, item_id=product_id)
         return await self.get_product_with_details_by_id(db_product.id)
+
+    async def get_product_by_reference(self, ref):
+        return await super().get_first_item_with_condition(Product.reference, ref)
+
+    async def update_products_quantity(self, products : list[ProductAddQuantity]):
+        update_data = [
+            {"reference":p.reference, "stock_quantity":p.stock_quantity}
+            for p in products
+        ]
+
+        product_refs = [p["reference"] for p in update_data]
+        existing_products = self.session.exec(select(Product).where(Product.reference.in_(product_refs))).all()
+
+        product_dict = {p.reference: p for p in existing_products}
+
+        bulk_updates = []
+        for data in update_data:
+            ref = data["reference"]
+            if ref in product_dict:
+                if not product_dict[ref].stock_quantity:
+                    product_dict[ref].stock_quantity = 0
+                bulk_updates.append({
+                    "id":product_dict[ref].id,
+                    "stock_quantity":product_dict[ref].stock_quantity + data["stock_quantity"]
+                })
+
+        self.session.bulk_update_mappings(Product, bulk_updates)
+        self.session.commit()
 
 
     async def delete_product(self, product_id : int):

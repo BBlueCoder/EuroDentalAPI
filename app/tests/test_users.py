@@ -48,6 +48,25 @@ def test_create_user_without_email(client: TestClient):
     res = client.post(USERS_PATH)
     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
+def test_block_users(client : TestClient, user):
+    client.post(USERS_PATH,data=user)
+
+    res = client.get(f"{USERS_PATH}/1")
+
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()["is_blocked"] == False
+
+    res = client.post(f"{USERS_PATH}/block_users",json={
+        "user_ids":[
+            1
+        ]
+    })
+    assert res.status_code == status.HTTP_200_OK
+
+    res = client.get(f"{USERS_PATH}/1")
+
+    assert res.status_code == status.HTTP_200_OK
+    assert res.json()["is_blocked"] == True
 
 @pytest.mark.parametrize(
     "first_name, last_name",

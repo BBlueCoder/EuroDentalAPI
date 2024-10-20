@@ -1,9 +1,9 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, update
 
 from app.controllers.BaseController import BaseController
 from app.controllers.profiles_controllers import ProfileController
 from app.models.profiles import Profile
-from app.models.users import User, UserCreate, UserByProfile, UserUpdate
+from app.models.users import User, UserCreate, UserByProfile, UserUpdate, BlockedIDs
 from app.utils.image_utils import add_image_to_entity
 from app.utils.map_model_to_model_read import model_to_model_read
 
@@ -50,6 +50,16 @@ class UsersController(BaseController):
     async def get_user_by_email(self, email):
         user = await super().get_first_item_with_condition(User.email, email)
         return user
+
+    async def block_users(self, users : BlockedIDs):
+        for blocked_id in users.user_ids:
+            self.session.exec(
+                update(User)
+                .where(User.id == blocked_id)
+                .values(is_blocked=True)
+            )
+
+        self.session.commit()
 
     async def create_user(self, user : UserCreate, image):
         user = await add_image_to_entity(user, self.session, image)

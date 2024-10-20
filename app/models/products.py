@@ -1,6 +1,11 @@
 from fastapi import Form
 from sqlmodel import Field, SQLModel
 
+class ProductAddQuantity(SQLModel):
+    reference: str = Field(..., description="Product reference", unique=True)
+    stock_quantity: int = Field(
+        ..., description="Quantity of the product to increase"
+    )
 
 class ProductBase(SQLModel):
     product_name: str | None = Field(
@@ -12,7 +17,7 @@ class ProductBase(SQLModel):
 
     price: float | None = Field(None, description="Price of the product")
     stock_quantity: int | None = Field(
-        None, description="Quantity of the product in stock"
+        0, description="Quantity of the product in stock"
     )
     has_warranty: bool | None = Field(
         None, description="Indicates if the product has a warranty"
