@@ -35,7 +35,7 @@ async def get_task_by_id(
 async def create_task(
         *, session: Session = Depends(get_session), task: TaskCreate, req: Request
         , user: User = Depends(authorize)):
-    controller = TasksController(session, req)
+    controller = TasksController(session, req, user)
     return await controller.create_task(task)
 
 

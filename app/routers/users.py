@@ -5,7 +5,7 @@ from fastapi import (APIRouter, Depends, HTTPException, Query, Response,
 from sqlmodel import Session, select
 from starlette.requests import Request
 
-from app.controllers.users import UsersController
+from app.controllers.users_controller import UsersController
 from app.db.dependencies import get_session
 from app.models.profiles import Profile
 from app.models.users import (User, UserByProfile, UserCreate, UserRead,

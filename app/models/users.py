@@ -73,6 +73,12 @@ class UserByProfile(SQLModel):
 class Tokens(SQLModel):
     access_token: str
     refresh_token: str
+    id : int
+    email : str
+    first_name : str = None
+    last_name : str = None
+    profile : str = None
+    profile_id : int
 
 
 class UserLogin(SQLModel):

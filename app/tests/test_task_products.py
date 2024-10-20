@@ -26,7 +26,7 @@ def task_fixture(session: Session, client_db: Client, user_db: User):
         "task_name": "task1",
         "client_id": client_db.id,
         "create_by": user_db.id,
-        "status": "working",
+        "status": "In Progress",
     }
     task = Task(**task_dic)
     session.add(task)

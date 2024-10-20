@@ -1,10 +1,15 @@
 from datetime import date
 from email.policy import default
+from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
+class Status(str, Enum):
+    unassigned = "Unassigned"
+    in_progress = "In Progress"
+    completed = "Completed"
 
 class TaskBase(SQLModel):
     task_name: str | None = Field(
@@ -35,7 +40,8 @@ class TaskBase(SQLModel):
 
 
 class TaskWithIDs(TaskBase):
-    create_by: int = Field(
+    create_by: int | None = Field(
+        None,
         description="ID of the user who created the task, required field.",
         foreign_key="users.id",
     )
@@ -43,8 +49,8 @@ class TaskWithIDs(TaskBase):
         description="ID of the client associated with the task, required field.",
         foreign_key="clients.id",
     )
-    status: str |None = Field(
-        "Unassigned",max_length=50, description="Current status of the task, required field."
+    status: Status |None = Field(
+        Status.unassigned,max_length=50, description="Current status of the task, required field."
     )
 
 
@@ -69,7 +75,7 @@ class TaskUpdate(TaskBase):
         description="ID of the client associated with the task, required field.",
         foreign_key="clients.id",
     )
-    status: str | None = Field(
+    status: Status | None = Field(
         default=None,
         max_length=50,
         description="Current status of the task, required field.",

@@ -13,7 +13,7 @@ ModelRead = typing.TypeVar("ModelRead", bound=ProductRead | ClientRead | UserRea
 
 def model_to_model_read(model: Model, req: Request) -> ModelRead:
     model_dic = model.model_dump()
-    if model_dic["image_id"]:
+    if model_dic["image_id"] and req:
         model_dic["image_path"] = generate_the_address(
             req, f"/images/{model_dic["image_id"]}"
         )

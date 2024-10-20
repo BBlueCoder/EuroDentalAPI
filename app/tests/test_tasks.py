@@ -24,7 +24,6 @@ def task_fixture(client_db: Client, user_db: User):
         "task_name": "task1",
         "client_id": client_db.id,
         "create_by": user_db.id,
-        "status": "working",
     }
 
 

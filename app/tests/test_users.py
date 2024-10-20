@@ -39,6 +39,7 @@ def test_create_user_get_user_by_id(client: TestClient, user):
     client.post(USERS_PATH, data=user)
 
     res = client.get(f"{USERS_PATH}/1")
+
     assert res.status_code == status.HTTP_200_OK
     assert res.json().get("email") == user["email"]
 
