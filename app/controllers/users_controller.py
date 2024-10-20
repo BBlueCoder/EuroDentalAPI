@@ -2,7 +2,6 @@ from sqlmodel import Session, select
 
 from app.controllers.BaseController import BaseController
 from app.controllers.profiles_controllers import ProfileController
-from app.errors.item_not_found import ItemNotFound
 from app.models.profiles import Profile
 from app.models.users import User, UserCreate, UserByProfile, UserUpdate
 from app.utils.image_utils import add_image_to_entity
@@ -20,6 +19,7 @@ class UsersController(BaseController):
         res = []
         for user, profile in users:
             user_read = model_to_model_read(user, self.req)
+            print(user_read)
             if profile_name:
                 user_read = UserByProfile(
                     id=user_read.id,
@@ -46,6 +46,10 @@ class UsersController(BaseController):
         if len(users) == 0:
             raise self.not_found_exc
         return self.map_to_user_read(users)[0]
+
+    async def get_user_by_email(self, email):
+        user = await super().get_first_item_with_condition(User.email, email)
+        return user
 
     async def create_user(self, user : UserCreate, image):
         user = await add_image_to_entity(user, self.session, image)

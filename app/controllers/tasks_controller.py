@@ -1,9 +1,10 @@
+from sqlalchemy.testing.suite.test_reflection import users
 from sqlmodel import Session, select, and_, desc, asc
 
 from app.controllers.BaseController import BaseController
 from app.models.clients import Client
 from app.models.task_products import TaskProduct
-from app.models.tasks import Task, TaskCreate, TaskUpdate, TaskRead, TaskFilterParams
+from app.models.tasks import Task, TaskCreate, TaskUpdate, TaskRead, TaskFilterParams, Status
 from app.models.users import User
 from app.utils.global_utils import generate_the_address
 
@@ -17,9 +18,10 @@ class TasksController(BaseController):
         # .join(Product, TaskProduct.product_reference == Product.reference, isouter=True)
     )
 
-    def __init__(self, session: Session, req = None):
+    def __init__(self, session: Session, req = None, current_user : User = None):
         super().__init__(session, Task)
         self.req = req
+        self.current_user = current_user
 
     def map_to_task_read(self, tasks):
         mapped_results: list[TaskRead] = []
@@ -88,6 +90,10 @@ class TasksController(BaseController):
         return await self.get_task_with_details_by_id(task_id)
 
     async def create_task(self, task : TaskCreate):
+        if not task.create_by:
+            task.create_by = self.current_user.id
+        if task.technician_id:
+            task.status = Status.in_progress
         db_task = await super().create_item(task)
         return await self.get_task_with_details_by_id(db_task.id)
 
