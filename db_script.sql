@@ -115,4 +115,16 @@ create table purshases (
 );
 
 
+SELECT datname, 
+       has_database_privilege('api_app', datname, 'CONNECT') AS can_connect,
+       has_database_privilege('api_app', datname, 'CREATE') AS can_create,
+       has_database_privilege('api_app', datname, 'TEMP') AS can_temp
+FROM pg_database
+WHERE datname = 'eurodental';
+
+SELECT table_schema,
+       table_name,
+       privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'api_app';
 
