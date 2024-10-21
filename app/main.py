@@ -12,8 +12,12 @@ from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
 from .routers import (auth, brands, categories, images, products,
                       profiles, sub_categories, task_products, tasks, users, clients)
+from .utils.global_utils import global_prefix
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=f"/api/v1/docs",
+    redoc_url=None
+)
 
 
 @app.exception_handler(IntegrityError)
