@@ -27,9 +27,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: euro_dental_build
-      - name: Print ssh key
-        run: |
-          echo ${{ secrets.EC2_SSH_KEY }}
       - name: Unzip project
         run: |
           unzip euro_dental_build.zip
@@ -61,6 +58,7 @@ jobs:
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_NAME=eurodental" >> .env
+            echo "EC2_SSH=${{ secrets.EC2_SSH_KEY }}" >> .env
             sudo systemctl restart fastapi
           EOF
 
