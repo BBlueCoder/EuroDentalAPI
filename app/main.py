@@ -1,23 +1,17 @@
-from typing import Annotated
-
-from fastapi import FastAPI, Form, UploadFile, status
+from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.params import Depends
 from fastapi.responses import JSONResponse
-from httpx import request
-from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import SQLModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
 from starlette.responses import FileResponse
 
 from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
-from .routers import (auth, brands, categories, clients, images, products,
-                      profiles, sub_categories, task_products, tasks, users)
+from .routers import (auth, brands, categories, images, products,
+                      profiles, sub_categories, task_products, tasks, users, clients)
 
 app = FastAPI()
 
