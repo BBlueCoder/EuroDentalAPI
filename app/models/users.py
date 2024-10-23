@@ -86,6 +86,7 @@ class Tokens(SQLModel):
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]
+    block : bool
 
 
 class UserLogin(SQLModel):

@@ -48,10 +48,10 @@ current_user : User = Depends(authorize)):
 
 @router.post("/block_users")
 async def block_users(
-        *,
-        session : Session = Depends(get_session),
-        blocked_ids : BlockedIDs,
-        user : User = Depends(authorize)
+    *,
+    session : Session = Depends(get_session),
+    blocked_ids : BlockedIDs,
+    user : User = Depends(authorize)
 ):
     controller = UsersController(session)
     await controller.block_users(blocked_ids)

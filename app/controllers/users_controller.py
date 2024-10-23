@@ -55,7 +55,7 @@ class UsersController(BaseController):
             self.session.exec(
                 update(User)
                 .where(User.id == blocked_id)
-                .values(is_blocked=True)
+                .values(is_blocked=users.block)
             )
 
         self.session.commit()
