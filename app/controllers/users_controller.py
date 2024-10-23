@@ -19,7 +19,6 @@ class UsersController(BaseController):
         res = []
         for user, profile in users:
             user_read = model_to_model_read(user, self.req)
-            print(user_read)
             if profile_name:
                 user_read = UserByProfile(
                     id=user_read.id,
