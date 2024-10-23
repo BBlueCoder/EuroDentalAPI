@@ -72,13 +72,17 @@ class UserByProfile(SQLModel):
 
 class Tokens(SQLModel):
     access_token: str
+    access_token_expire_minutes: int = None
     refresh_token: str
+    refresh_token_expire_minutes: int = None
     id : int
     email : str
     first_name : str = None
     last_name : str = None
     profile : str = None
     profile_id : int
+    image_path: str | None = None
+    image_id: int
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]

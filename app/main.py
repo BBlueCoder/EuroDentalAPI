@@ -19,7 +19,6 @@ app = FastAPI(
     redoc_url=None
 )
 
-
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(_, exc: IntegrityError):
     return JSONResponse(
