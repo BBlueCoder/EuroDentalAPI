@@ -59,7 +59,8 @@ def test_block_users(client : TestClient, user):
     res = client.post(f"{USERS_PATH}/block_users",json={
         "user_ids":[
             1
-        ]
+        ],
+        "block": 1==1
     })
     assert res.status_code == status.HTTP_200_OK
 
