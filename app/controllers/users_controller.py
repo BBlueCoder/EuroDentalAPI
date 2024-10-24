@@ -31,12 +31,14 @@ class UsersController(BaseController):
 
         return res
 
-    async def get_users(self, profile_name):
+    async def get_users(self, profile_name, current_user_id: int):
         _statement = self.statement
         if profile_name:
             profile_controller = ProfileController(self.session)
             profile = await profile_controller.get_profile_by_name(profile_name)
-            _statement = self.statement.where(User.profile_id == profile.id)
+            _statement = self.statement.where(User.profile_id == profile.id and User.id != current_user_id)
+        else :
+            _statement = self.statement.where(User.id != current_user_id) 
         users = await super().get_and_join_items(_statement, None)
         return self.map_to_user_read(users, profile_name)
 
@@ -62,6 +64,8 @@ class UsersController(BaseController):
 
     async def create_user(self, user : UserCreate, image):
         user = await add_image_to_entity(user, self.session, image)
+        if not user.image_id:
+            user.image_id = 1
         db_user = await super().create_item(user)
         return await self.get_user_by_id(db_user.id)
 

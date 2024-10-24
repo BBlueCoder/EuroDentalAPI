@@ -94,6 +94,7 @@ class TasksController(BaseController):
             task.create_by = self.current_user.id
         if task.technician_id:
             task.status = Status.in_progress.value
+            
         db_task = await super().create_item(task)
         return await self.get_task_with_details_by_id(db_task.id)
 

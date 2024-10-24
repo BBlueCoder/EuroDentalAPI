@@ -24,13 +24,13 @@ async def get_all_users(
     profile_name: Annotated[str | None, Query(max_length=25)] = None,
     current_user : User = Depends(authorize)):
     controller = UsersController(session,req)
-    return await controller.get_users(profile_name)
+    return await controller.get_users(profile_name, current_user.id)
 
 
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
     *, session: Session = Depends(get_session), user_id: int, req: Request
-,current_user : User = Depends(authorize)):
+    ,current_user : User = Depends(authorize)):
     controller = UsersController(session,req)
     return await controller.get_user_by_id(user_id)
 
@@ -42,7 +42,7 @@ async def create_user(
     user: UserCreate = Depends(parse_user_from_data_to_user_create),
     image: UploadFile | None = None,
     req: Request,
-current_user : User = Depends(authorize)):
+    current_user : User = Depends(authorize)):
     controller = UsersController(session,req)
     return await controller.create_user(user,image)
 
