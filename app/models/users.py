@@ -1,5 +1,5 @@
 from fastapi import Form
-from pydantic import EmailStr, computed_field
+from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
 from app.utils.global_utils import hash_password

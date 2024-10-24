@@ -1,4 +1,4 @@
-from sqlmodel import Session, select, update
+from sqlmodel import Session, asc, select, update
 
 from app.controllers.BaseController import BaseController
 from app.controllers.profiles_controllers import ProfileController
@@ -9,7 +9,7 @@ from app.utils.map_model_to_model_read import model_to_model_read
 
 
 class UsersController(BaseController):
-    statement = select(User, Profile).join(Profile, isouter=True)
+    statement = select(User, Profile).join(Profile, isouter=True).order_by(asc(User.id))
 
     def __init__(self, session: Session, req = None):
         super().__init__(session, User)

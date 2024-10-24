@@ -10,7 +10,7 @@ from starlette.responses import FileResponse
 
 from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
-from .routers import (auth, brands, categories, images, products,
+from .routers import (auth, brands, categories, images, products, rights,
                       profiles, sub_categories, task_products, tasks, users, clients)
 from .utils.global_utils import global_prefix
 
@@ -80,6 +80,7 @@ app.include_router(profiles.router)
 app.include_router(users.router)
 app.include_router(tasks.router)
 app.include_router(task_products.router)
+app.include_router(rights.router)
 
 
 @app.get("/")

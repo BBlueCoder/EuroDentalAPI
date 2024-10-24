@@ -2,7 +2,7 @@ from sqlmodel import Session
 
 from app.controllers.BaseController import BaseController
 from app.errors.item_not_found import ItemNotFound
-from app.models.profiles import Profile, ProfileCreate, ProfileUpdate
+from app.models.profiles import Profile, ProfileCreate, ProfileRead, ProfileUpdate
 
 
 class ProfileController(BaseController):
