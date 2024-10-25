@@ -103,7 +103,7 @@ class TasksController(BaseController):
             self.session.exec(
                 update(Task)
                 .where(Task.id == task_id)
-                .values(technician_id=tasks.technician_id)
+                .values(technician_id=tasks.technician_id, status = Status.in_progress)
             )
 
         self.session.commit()

@@ -21,6 +21,5 @@ class ProfileRead(ProfileBase):
     id: int
     pass
 
-
 class ProfileUpdate(ProfileBase):
     pass
