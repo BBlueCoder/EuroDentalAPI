@@ -18,14 +18,14 @@ class RightController(BaseController):
         super().__init__(session, Right, ItemNotFound("Right Not Found"))
 
     async def get_rights(self):
-        return await super().get_and_join_items(self.statement,self.map_to_right_read)
+        return await super().get_and_join_items(self.statement,self.map_to_rights_read)
     
     async def get_right_by_user_id(self,user_id):
         statement = self.statement.join(User, isouter=True).where(User.id == user_id)
-        rights = await super().get_and_join_items(statement,self.map_to_right_read)
+        rights = await super().get_and_join_items(statement,self.map_to_rights_read)
         return rights[0]
     
-    def map_to_right_read(self, rights):
+    def map_to_rights_read(self, rights):
         mapped_rights : list[RightRead] = []
         for right, profile in rights:
             right_read = RightRead(**right.model_dump())
@@ -35,6 +35,12 @@ class RightController(BaseController):
             mapped_rights.append(right_read)
 
         return mapped_rights
+    
+    def map_to_right_read(self, right, profile_name:str):
+        right_read = RightRead(**right.model_dump())
+        right_read.profile_name = profile_name
+
+        return right_read
     
     async def create_right(self, right : RightRead):
         return await super().create_item(right)
