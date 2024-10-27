@@ -5,7 +5,7 @@ from starlette.requests import Request
 from app.controllers.tasks_controller import TasksController
 from app.db.dependencies import get_session
 from app.models.tasks import (Task, TaskCreate, TaskFilterParams, TaskRead,
-                              TaskUpdate)
+                              TaskUpdate, TaskDetails)
 from app.models.tasks_assignment import TasksAssignment
 from app.models.users import User
 from app.routers.auth import authorize
@@ -30,6 +30,13 @@ async def get_task_by_id(
         , user: User = Depends(authorize)):
     controller = TasksController(session, req)
     return await controller.get_task_by_id(task_id)
+
+@router.get("/task_details/{task_id}", response_model=TaskDetails)
+async def get_task_details(
+        *, session: Session = Depends(get_session), task_id: int, req: Request
+        , user: User = Depends(authorize)):
+    controller = TasksController(session, req)
+    return await controller.get_task_all_details(task_id)
 
 
 @router.post("/", response_model=TaskRead)
