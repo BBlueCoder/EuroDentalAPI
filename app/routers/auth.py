@@ -64,7 +64,7 @@ async def authorize(token: str = Depends(oauth_scheme), session : Session = Depe
 
 @router.post("/login", response_model=Tokens)
 async def login(
-    *, session: Session = Depends(get_session), form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    *,session: Session = Depends(get_session), form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
     credentials = UserLogin(email=form_data.username,password=form_data.password)
     user = await authenticate_user(session,credentials)
@@ -75,5 +75,5 @@ async def login(
 
 @router.post("/refresh_token", response_model=Tokens)
 async def refresh_token(*, user : User = Depends(authorize)):
-    return create_tokens(user)
+    return create_token(user)
 
