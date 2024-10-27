@@ -58,6 +58,7 @@ jobs:
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
             echo "DB_NAME=eurodental" >> .env
+            echo "EC2_SSH=${{ secrets.EC2_SSH_KEY }}" >> .env
             sudo systemctl restart fastapi
           EOF
 

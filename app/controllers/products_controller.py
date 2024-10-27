@@ -1,6 +1,6 @@
 from itertools import product
 
-from sqlmodel import Session, select
+from sqlmodel import Session, asc, select
 from starlette.requests import Request
 
 from app.controllers.BaseController import BaseController
@@ -18,6 +18,7 @@ class ProductsController(BaseController):
         .join(Category, isouter=True)
         .join(SubCategory, isouter=True)
         .join(Brand, isouter=True)
+        .order_by(asc(Product.id))
     )
 
     def __init__(self, session: Session, req : Request | None = None):
@@ -53,6 +54,8 @@ class ProductsController(BaseController):
 
     async def create_product(self, product : ProductCreate, image):
         product = await add_image_to_entity(product,self.session, image)
+        if not product.image_id:
+            product.image_id = 2
         db_product = await super().create_item(product)
         return await self.get_product_with_details_by_id(db_product.id)
 

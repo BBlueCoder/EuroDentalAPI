@@ -9,6 +9,7 @@ from app.models.categories import Category
 from app.models.clients import Client
 from app.models.products import Product
 from app.models.profiles import Profile
+from app.models.rights import Right
 from app.models.sub_categories import SubCategory
 from app.models.task_products import TaskProduct
 from app.models.tasks import Task
@@ -17,7 +18,7 @@ from app.models.users import User
 Entity = TypeVar(
     "Entity",
     bound=Type[Brand] | Type[Category] | Type[Client] | Type[Product] | Type[Profile] | Type[SubCategory] | Type[
-        TaskProduct] | Type[Task] | Type[User]
+        TaskProduct] | Type[Task] | Type[User] | Type[Right]
 )
 
 

@@ -42,7 +42,7 @@ async def create_product(
     product: ProductCreate = Depends(parse_product_from_data_to_product_create),
     image: UploadFile | None = None,
     req: Request
-,user : User = Depends(authorize)):
+    ,user : User = Depends(authorize)):
     controller = ProductsController(session,req)
     return await controller.create_product(product,image)
 

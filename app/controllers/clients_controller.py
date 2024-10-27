@@ -30,6 +30,8 @@ class ClientsController(BaseController):
 
     async def create_client(self, client : ClientCreate, image : UploadFile | None = None):
         client = await add_image_to_entity(client,self.session,image)
+        if not client.image_id:
+            client.image_id = 1
         db_client = await super().create_item(client)
         return self.map_to_client_read(db_client)
 

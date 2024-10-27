@@ -94,6 +94,7 @@ class TasksController(BaseController):
             task.create_by = self.current_user.id
         if task.technician_id:
             task.status = Status.in_progress.value
+            
         db_task = await super().create_item(task)
         return await self.get_task_with_details_by_id(db_task.id)
 
@@ -102,7 +103,7 @@ class TasksController(BaseController):
             self.session.exec(
                 update(Task)
                 .where(Task.id == task_id)
-                .values(technician_id=tasks.technician_id)
+                .values(technician_id=tasks.technician_id, status = Status.in_progress)
             )
 
         self.session.commit()
