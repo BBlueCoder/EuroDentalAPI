@@ -12,7 +12,8 @@ from app.core.config import token_settings
 from app.db.dependencies import get_session
 from app.errors.item_not_found import ItemNotFound
 from app.errors.login_credentials_invalid import LoginCredentialsInvalid
-from app.models.users import User, UserLogin, Tokens, UserRead
+from app.errors.password_requires_change import PasswordRequiresChange
+from app.models.users import User, UserLogin, Tokens, UserRead, ChangeUserPassword, ResetPassword
 from app.utils.global_utils import verify_hashed_password, global_prefix
 
 router = APIRouter(prefix=f"{global_prefix}", tags=["auth"])
@@ -22,6 +23,8 @@ async def authenticate_user(session : Session ,credentials: UserLogin, req: Requ
     user_controller = UsersController(session, req)
     try:
         user = await user_controller.get_user_by_email(credentials.email)
+        if user.requires_password_change:
+            raise PasswordRequiresChange()
         if user.is_blocked:
             return False
     except ItemNotFound:
@@ -37,6 +40,7 @@ def create_token(data : dict, expires_delta: timedelta):
 
 def create_tokens(user : UserRead):
     token_data = {"id": user.id, "profile_id": user.profile_id}
+    print(user)
     return Tokens(
         access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
         refresh_token=create_token(token_data, timedelta(minutes=token_settings.refresh_token_expire_minutes)),
@@ -79,6 +83,20 @@ async def login(
 async def refresh_token(*, user : User = Depends(authorize)):
     return create_token(user)
 
+@router.post("/change_password")
+async def change_password(*, session: Session = Depends(get_session), user_data: ChangeUserPassword,
+                          user: User = Depends(authorize)):
+    user_controller = UsersController(session)
+    await user_controller.change_password(user_data.id,user_data.old_password,user_data.new_password)
+    return {"message":"Password changed successfully"}
+
+@router.post("/reset_password")
+async def reset_password(*, session: Session = Depends(get_session), email: ResetPassword,
+                          user: User = Depends(authorize)):
+    user_controller = UsersController(session)
+    await user_controller.reset_password(email.email)
+    return {"message": "New Password sent to the user email"}
+
 
 from fastapi.responses import JSONResponse
 from datetime import timedelta
@@ -94,10 +112,10 @@ async def login(
     user = await authenticate_user(session, credentials, req)
     if not user:
         raise LoginCredentialsInvalid()
-    
+
     # Generate the access and refresh tokens
     tokens = create_tokens(user)
-    
+
     response = JSONResponse(content={
         "access_token": tokens.access_token,
         "id":tokens.id,
@@ -113,16 +131,16 @@ async def login(
         key="refresh_token",
         value=tokens.refresh_token,
         httponly=True,
-        max_age=int(timedelta(minutes=token_settings.refresh_token_expire_minutes).total_seconds()),  
-        secure=True,  
-        samesite="strict"  
+        max_age=int(timedelta(minutes=token_settings.refresh_token_expire_minutes).total_seconds()),
+        secure=True,
+        samesite="strict"
     )
     return response
 
 
 @router.post("/web/refresh_token")
 async def refresh_token(
-    *, 
+    *,
     refresh_token: Annotated[str | None, Cookie()] = None  # Get the refresh token from the HTTP-only cookie
 ):
     # Check if the refresh token is valid
