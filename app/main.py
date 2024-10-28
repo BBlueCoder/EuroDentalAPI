@@ -10,9 +10,11 @@ from starlette.responses import FileResponse
 
 from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
+from .errors.password_requires_change import PasswordRequiresChange
 from .routers import (auth, brands, categories, images, products, rights,
                       profiles, sub_categories, task_products, tasks, users, clients)
 from .utils.global_utils import global_prefix
+from .utils.send_password_email import send_password_email
 
 app = FastAPI(
     docs_url=f"/api/v1/docs",
@@ -28,6 +30,13 @@ async def integrity_error_handler(_, exc: IntegrityError):
 
 @app.exception_handler(ItemNotFound)
 async def item_not_found_error_handler(_, exc: ItemNotFound):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error_detail": exc.message},
+    )
+
+@app.exception_handler(PasswordRequiresChange)
+async def password_require_change_error_handler(_, exc: PasswordRequiresChange):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error_detail": exc.message},
@@ -93,6 +102,11 @@ async def root(req: Request):
 async def logs():
     file_path = "logfile.log"
     return FileResponse(path=file_path, filename="logfile.log")
+
+# @app.post("/email")
+# async def send_mail():
+#     send_password_email("opooo","aball.boy.99@gmail.com")
+#     return {"message":"email sent successfully!"}
 
 # class FormImage(BaseModel):
 #     text: str

@@ -14,6 +14,13 @@ class TokenSettings(BaseSettings):
     access_token_expire_minutes : int = 30
     refresh_token_expire_minutes : int = 24 * 7 * 60
 
+class EmailSettings(BaseSettings):
+    email : str = "trading.blue.bot@gmail.com"
+    e_password : str = "kogozfdsgfgwysnd"
+    e_port : int = 465
+    smtp_server : str = "smtp.gmail.com"
+
+
 
 db_settings = DBSettings()
 token_settings = TokenSettings()
