@@ -17,14 +17,14 @@ async def get_all_rights(*, session: Session = Depends(get_session), user : User
     controller = RightController(session)
     return await controller.get_rights()
 
-@router.get("/{id_user}", response_model=RightRead)
-async def get_right_by_user_id(
+@router.get("/{id_Profile}", response_model=RightRead)
+async def get_right_by_Profile_id(
     *, 
     session: Session = Depends(get_session),
     user : User = Depends(authorize),
-    id_user : int):
+    id_Profile : int):
     controller = RightController(session)
-    return await controller.get_right_by_user_id(id_user)
+    return await controller.get_right_by_Profile_id(id_Profile)
 
 @router.put("/{right_id}", response_model=RightRead)
 async def update_right(
