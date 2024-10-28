@@ -49,6 +49,13 @@ class ProductsController(BaseController):
         res = await super().get_and_join_items(self.statement.where(Product.id == product_id),self.map_to_product_read,is_first=True)
         return res[0]
 
+    async def get_product_by_reference(self, ref):
+        return await super().get_first_item_with_condition(Product.reference, ref)
+
+    async def get_products_by_references(self,product_refs : list[str]):
+        return await super().get_and_join_items(self.statement.where(Product.reference.in_(product_refs)),self.map_to_product_read)
+
+
     async def get_product_by_id(self,product_id):
         return await self.get_product_with_details_by_id(product_id)
 
@@ -63,9 +70,6 @@ class ProductsController(BaseController):
         product = await add_image_to_entity(product, self.session, image)
         db_product = await super().update_item(updated_item=product, item_id=product_id)
         return await self.get_product_with_details_by_id(db_product.id)
-
-    async def get_product_by_reference(self, ref):
-        return await super().get_first_item_with_condition(Product.reference, ref)
 
     async def update_products_quantity(self, products : list[ProductAddQuantity]):
         update_data = [
