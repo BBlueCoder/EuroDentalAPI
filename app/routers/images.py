@@ -14,11 +14,11 @@ router = APIRouter(prefix=f"{global_prefix}/images", tags=["images"])
 
 
 @router.get("/{image_id}")
-async def serve_image(*, session: Session = Depends(get_session), image_id: int, user : User = Depends(authorize)):
+async def serve_image(*, session: Session = Depends(get_session), image_id: int):
     db_image = session.get(Image, image_id)
     if not db_image:
-        raise HTTPException(status_code=404, detail="Image Not Found")
+        raise HTTPException(status_code=404, detail="Image Not Found 1")
     image_path = Path(f"images/{db_image.image_name}")
     if not image_path.exists():
-        raise HTTPException(status_code=404, detail="Image Not Found")
+        raise HTTPException(status_code=404, detail="Image Not Found 2")
     return FileResponse(path=image_path, filename=db_image.image_name)

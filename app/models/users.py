@@ -1,5 +1,5 @@
 from fastapi import Form
-from pydantic import EmailStr, computed_field
+from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
 from app.utils.global_utils import hash_password
@@ -72,16 +72,21 @@ class UserByProfile(SQLModel):
 
 class Tokens(SQLModel):
     access_token: str
+    access_token_expire_minutes: int = None
     refresh_token: str
+    refresh_token_expire_minutes: int = None
     id : int
     email : str
     first_name : str = None
     last_name : str = None
     profile : str = None
     profile_id : int
+    image_path: str | None = None
+    image_id: int
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]
+    block : bool
 
 
 class UserLogin(SQLModel):

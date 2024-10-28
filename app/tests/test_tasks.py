@@ -59,6 +59,19 @@ def test_create_task_with_task_product(client: TestClient, task, product: Produc
     assert res.status_code == status.HTTP_200_OK
     # assert res.json()["id_category"] == product.id_category
 
+def test_task_details(client: TestClient, task, product: Product):
+    task["task_name"] = "task1"
+    task_data = client.post(TASKS_PATH, json=task).json()
+    assert task_data
+
+    client.post(
+        TASK_PRODUCTS_PATH,
+        json={"product_reference": product.reference, "task_id": task_data["id"]},
+    )
+    res = client.get(f"{TASKS_PATH}/task_details/{task_data["id"]}")
+    assert res.status_code == status.HTTP_200_OK
+    assert len(res.json()["products"]) == 1
+
 
 def test_create_and_get_tasks(client: TestClient, task):
     for task_name in tasks:

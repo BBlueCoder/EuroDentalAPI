@@ -5,6 +5,11 @@ from typing import Literal
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
+from app.models.clients import ClientRead
+from app.models.products import ProductRead
+from app.models.users import UserRead
+
+
 class Status(str, Enum):
     unassigned = "Unassigned"
     in_progress = "In Progress"
@@ -91,6 +96,12 @@ class TaskRead(TaskWithIDs):
     # id_category: int | None = None
     # id_sub_category: int | None = None
     # id_brand: int | None = None
+
+class TaskDetails(TaskWithIDs):
+    id : int
+    client : ClientRead | None = None
+    technician : UserRead | None = None
+    products : list[ProductRead] = []
 
 
 class TaskFilterParams(BaseModel):

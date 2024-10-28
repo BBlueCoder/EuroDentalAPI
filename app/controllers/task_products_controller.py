@@ -14,6 +14,9 @@ class TaskProductController(BaseController):
     async def get_task_product_by_id(self,task_product_id):
         return await super().get_first_item_by_id(item_id=task_product_id)
 
+    async def get_all_task_products_for_a_task(self, task_id):
+        return await super().get_items_with_condition(TaskProduct.task_id, task_id)
+
     async def create_task_product(self, task_product : TaskProductCreate):
         return await super().create_item(task_product)
 

@@ -52,7 +52,7 @@ class Product(ProductBaseWithIDs, table=True):
 
 
 class ProductCreate(ProductBaseWithIDs):
-    reference: str = Field(..., description="Product reference", unique=True)
+    reference: str = Field(..., description="Product reference", unique=True),
 
 
 class ProductUpdate(ProductBaseWithIDs):
@@ -90,8 +90,8 @@ def parse_product_from_data_to_product_create(
     has_warranty: bool | None = Form(
         None, description="Indicates if the product has a warranty"
     ),
-    warranty_duration_months: int | None = Form(
-        None, description="Warranty duration in months"
+    warranty_duration_months: int = Form(
+        0, description="Warranty duration in months"
     ),
     reference: str = Form(..., description="Product reference"),
 ):
