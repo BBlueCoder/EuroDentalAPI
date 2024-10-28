@@ -20,8 +20,8 @@ class RightController(BaseController):
     async def get_rights(self):
         return await super().get_and_join_items(self.statement,self.map_to_rights_read)
     
-    async def get_right_by_user_id(self,user_id):
-        statement = self.statement.join(User, isouter=True).where(User.id == user_id)
+    async def get_right_by_Profile_id(self,Profile_id):
+        statement = self.statement.where(Profile.id == Profile_id)
         rights = await super().get_and_join_items(statement,self.map_to_rights_read)
         return rights[0]
     

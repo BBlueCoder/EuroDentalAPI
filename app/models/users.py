@@ -72,9 +72,7 @@ class UserByProfile(SQLModel):
 
 class Tokens(SQLModel):
     access_token: str
-    access_token_expire_minutes: int = None
     refresh_token: str
-    refresh_token_expire_minutes: int = None
     id : int
     email : str
     first_name : str = None
