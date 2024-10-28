@@ -15,8 +15,8 @@ class TokenSettings(BaseSettings):
     refresh_token_expire_minutes : int = 24 * 7 *60
 
 class EmailSettings(BaseSettings):
-    email : str
-    e_password : str
+    email : str = ""
+    e_password : str = ""
     e_port : int = 465
     smtp_server : str = "smtp.gmail.com"
 
