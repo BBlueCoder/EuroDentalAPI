@@ -89,7 +89,7 @@ class Tokens(SQLModel):
     profile : str = None
     profile_id : int
     image_path: str | None = None
-    image_id: int
+    image_id: int | None = None
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]

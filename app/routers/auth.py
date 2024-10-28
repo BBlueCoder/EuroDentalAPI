@@ -40,6 +40,7 @@ def create_token(data : dict, expires_delta: timedelta):
 
 def create_tokens(user : UserRead):
     token_data = {"id": user.id, "profile_id": user.profile_id}
+    print(user)
     return Tokens(
         access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
         refresh_token=create_token(token_data, timedelta(minutes=token_settings.refresh_token_expire_minutes)),
