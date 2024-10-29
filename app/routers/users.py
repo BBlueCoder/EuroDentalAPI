@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Callable
 
 from fastapi import (APIRouter, Depends, Query, Response,
                      UploadFile, status)
@@ -12,6 +12,7 @@ from app.models.users import (User, UserCreate, UserRead,
                               parse_user_from_data_to_user_update, BlockedIDs)
 from app.routers.auth import authorize
 from app.utils.global_utils import global_prefix
+from app.utils.send_password_email import send_password_email
 
 router = APIRouter(prefix=f"{global_prefix}/users", tags=["users"])
 
@@ -42,9 +43,11 @@ async def create_user(
     user: UserCreate = Depends(parse_user_from_data_to_user_create),
     image: UploadFile | None = None,
     req: Request,
-    current_user : User = Depends(authorize)):
+    current_user : User = Depends(authorize),
+    send_password_email_sender : Callable = Depends(send_password_email)
+):
     controller = UsersController(session,req)
-    return await controller.create_user(user,image)
+    return await controller.create_user(user,image,send_password_email_sender)
 
 @router.post("/block_users")
 async def block_users(

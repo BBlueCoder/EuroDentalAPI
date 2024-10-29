@@ -10,7 +10,6 @@ from app.utils.global_utils import hash_password, verify_hashed_password
 from app.utils.image_utils import add_image_to_entity
 from app.utils.map_model_to_model_read import model_to_model_read
 from app.utils.send_new_password_email import send_new_password_email
-from app.utils.send_password_email import send_password_email
 
 
 class UsersController(BaseController):
@@ -97,7 +96,7 @@ class UsersController(BaseController):
         await self.update_requires_password_change(user_db.id, True)
         send_new_password_email(generated_password,email)
 
-    async def create_user(self, user : UserCreate, image):
+    async def create_user(self, user : UserCreate, image, send_password_email):
         user = await add_image_to_entity(user, self.session, image)
         generated_password = generate_password()
         user.password_hash = hash_password(generated_password)
