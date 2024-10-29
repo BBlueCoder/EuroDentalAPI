@@ -38,15 +38,16 @@ class User(UserBase, table=True):
     password_hash: str = Field(
         ..., max_length=255, description="Password, up to 255 characters"
     )
+    requires_password_change : bool = Field(False, description="If user requires to change generated password")
+
 
 
 class UserCreate(UserBase):
     email: EmailStr = Field(..., description="Email address, must be unique")
-    password_hash: str = Field(
-        ..., max_length=255, description="Password, up to 255 characters"
-    )
     profile_id: int = Field(..., foreign_key="profiles.id")
-
+    password_hash: str | None = Field(
+        None, max_length=255, description="Password, up to 255 characters"
+    )
 
 class UserUpdate(UserBase):
     password_hash: str | None = Field(
@@ -69,6 +70,14 @@ class UserByProfile(SQLModel):
     image_path: str | None = None
     full_name: str | None = None
 
+class ChangeUserPassword(SQLModel):
+    id : int
+    old_password : str
+    new_password : str
+
+class ResetPassword(SQLModel):
+    email : str
+
 
 class Tokens(SQLModel):
     access_token: str
@@ -80,7 +89,7 @@ class Tokens(SQLModel):
     profile : str = None
     profile_id : int
     image_path: str | None = None
-    image_id: int
+    image_id: int | None = None
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]
@@ -101,14 +110,11 @@ def parse_user_from_data_to_user_create(
         last_name: str | None = Form(
             None, max_length=100, description="Last name, up to 100 characters"
         ),
-        password: str = Form(
-            ..., max_length=255, description="Password, up to 255 characters"
-        ),
         phone_number: str | None = Form(
             None, min_length=10, max_length=10, description="Phone number, 10 digits"
         ),
         is_blocked: bool | None = Form(
-            None, description="Indicates if the user is blocked"
+            False, description="Indicates if the user is blocked"
         ),
         profile_id: int = Form(..., foreign_key="profiles.id"),
         email: EmailStr = Form(..., description="Email address, must be unique"),
@@ -122,7 +128,6 @@ def parse_user_from_data_to_user_create(
     return UserCreate(
         first_name=first_name,
         last_name=last_name,
-        password_hash=hash_password(password),
         phone_number=phone_number,
         is_blocked=is_blocked,
         profile_id=profile_id,
