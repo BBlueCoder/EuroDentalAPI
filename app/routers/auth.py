@@ -42,7 +42,7 @@ def create_tokens(user : UserRead):
     token_data = {"id": user.id, "profile_id": user.profile_id}
     print(user)
     return Tokens(
-        access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
+        access_token=create_token(token_data, timedelta(seconds=10)),
         refresh_token=create_token(token_data, timedelta(minutes=token_settings.refresh_token_expire_minutes)),
         id=user.id,
         email=user.email,
