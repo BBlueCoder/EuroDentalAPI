@@ -12,7 +12,6 @@ from app.core.config import token_settings
 from app.db.dependencies import get_session
 from app.errors.item_not_found import ItemNotFound
 from app.errors.login_credentials_invalid import LoginCredentialsInvalid
-from app.errors.password_requires_change import PasswordRequiresChange
 from app.models.users import User, UserLogin, Tokens, UserRead, ChangeUserPassword, ResetPassword
 from app.utils.global_utils import verify_hashed_password, global_prefix
 
@@ -23,8 +22,6 @@ async def authenticate_user(session : Session ,credentials: UserLogin, req: Requ
     user_controller = UsersController(session, req)
     try:
         user = await user_controller.get_user_by_email(credentials.email)
-        if user.requires_password_change:
-            raise PasswordRequiresChange()
         if user.is_blocked:
             return False
     except ItemNotFound:
@@ -40,7 +37,6 @@ def create_token(data : dict, expires_delta: timedelta):
 
 def create_tokens(user : UserRead):
     token_data = {"id": user.id, "profile_id": user.profile_id}
-    print(user)
     return Tokens(
         access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
         refresh_token=create_token(token_data, timedelta(minutes=token_settings.refresh_token_expire_minutes)),
@@ -51,7 +47,8 @@ def create_tokens(user : UserRead):
         profile=user.profile,
         profile_id=user.profile_id,
         image_path= user.image_path,
-        image_id=user.image_id
+        image_id=user.image_id,
+        requires_password_change=user.requires_password_change
     )
 
 async def authorize(token: str = Depends(oauth_scheme), session : Session = Depends(get_session)):
@@ -91,8 +88,7 @@ async def change_password(*, session: Session = Depends(get_session), user_data:
     return {"message":"Password changed successfully"}
 
 @router.post("/reset_password")
-async def reset_password(*, session: Session = Depends(get_session), email: ResetPassword,
-                          user: User = Depends(authorize)):
+async def reset_password(*, session: Session = Depends(get_session), email: ResetPassword):
     user_controller = UsersController(session)
     await user_controller.reset_password(email.email)
     return {"message": "New Password sent to the user email"}

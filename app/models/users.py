@@ -63,6 +63,7 @@ class UserRead(UserBase):
     image_path: str | None = None
     profile_id: int = Field(..., foreign_key="profiles.id")
     profile : str | None = None
+    requires_password_change: bool = Field(False, description="If user requires to change generated password")
 
 
 class UserByProfile(SQLModel):
@@ -90,6 +91,7 @@ class Tokens(SQLModel):
     profile_id : int
     image_path: str | None = None
     image_id: int | None = None
+    requires_password_change : bool = False
 
 class BlockedIDs(SQLModel):
     user_ids : list[int]

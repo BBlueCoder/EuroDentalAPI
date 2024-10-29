@@ -13,6 +13,7 @@ from app.models.products import Product
 from app.models.profiles import Profile
 from app.models.users import User, UserUpdate
 from app.routers.auth import oauth_scheme, authorize
+from app.utils.send_password_email import send_password_email
 
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -39,9 +40,16 @@ def client_fixture(session: Session):
     def authorize_override():
         return User()
 
+    def send_password_email_override():
+        def sender_override(password,receiver_email):
+            return
+
+        return sender_override
+
     app.dependency_overrides[get_session] = get_session_override
     app.dependency_overrides[oauth_scheme] = oauth_scheme_override
     app.dependency_overrides[authorize] = authorize_override
+    app.dependency_overrides[send_password_email] = send_password_email_override
 
     yield TestClient(app)
 
