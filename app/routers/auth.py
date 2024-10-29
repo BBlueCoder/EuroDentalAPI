@@ -81,7 +81,7 @@ async def login(
 
 @router.post("/refresh_token", response_model=Tokens)
 async def refresh_token(*, user : User = Depends(authorize)):
-    return create_token(user)
+    return create_tokens(user)
 
 @router.post("/change_password")
 async def change_password(*, session: Session = Depends(get_session), user_data: ChangeUserPassword,
@@ -98,61 +98,61 @@ async def reset_password(*, session: Session = Depends(get_session), email: Rese
     return {"message": "New Password sent to the user email"}
 
 
-from fastapi.responses import JSONResponse
-from datetime import timedelta
+# from fastapi.responses import JSONResponse
+# from datetime import timedelta
 
-@router.post("/web/login", response_model=Tokens)
-async def login(
-    *,
-    session: Session = Depends(get_session),
-    req: Request,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-):
-    credentials = UserLogin(email=form_data.username, password=form_data.password)
-    user = await authenticate_user(session, credentials, req)
-    if not user:
-        raise LoginCredentialsInvalid()
+# @router.post("/web/login", response_model=Tokens)
+# async def login(
+#     *,
+#     session: Session = Depends(get_session),
+#     req: Request,
+#     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+# ):
+#     credentials = UserLogin(email=form_data.username, password=form_data.password)
+#     user = await authenticate_user(session, credentials, req)
+#     if not user:
+#         raise LoginCredentialsInvalid()
     
-    # Generate the access and refresh tokens
-    tokens = create_tokens(user)
+#     # Generate the access and refresh tokens
+#     tokens = create_tokens(user)
     
-    response = JSONResponse(content={
-        "access_token": tokens.access_token,
-        "id":tokens.id,
-        "email":tokens.email,
-        "first_name":tokens.first_name,
-        "last_name":tokens.last_name,
-        "profile":tokens.profile,
-        "profile_id":tokens.profile_id,
-        "image_path": tokens.image_path,
-        "image_id":tokens.image_id
-    })
-    response.set_cookie(
-        key="refresh_token",
-        value=tokens.refresh_token,
-        httponly=True,
-        max_age=int(timedelta(minutes=token_settings.refresh_token_expire_minutes).total_seconds()),  
-        secure=False,  
-        samesite="strict"  
-    )
-    return response
+#     response = JSONResponse(content={
+#         "access_token": tokens.access_token,
+#         "id":tokens.id,
+#         "email":tokens.email,
+#         "first_name":tokens.first_name,
+#         "last_name":tokens.last_name,
+#         "profile":tokens.profile,
+#         "profile_id":tokens.profile_id,
+#         "image_path": tokens.image_path,
+#         "image_id":tokens.image_id
+#     })
+#     response.set_cookie(
+#         key="refresh_token",
+#         value=tokens.refresh_token,
+#         httponly=True,
+#         max_age=int(timedelta(minutes=token_settings.refresh_token_expire_minutes).total_seconds()),  
+#         secure=False,  
+#         samesite="strict"  
+#     )
+#     return response
 
 
-@router.post("/web/refresh_token")
-async def refresh_token(
-    *, 
-    refresh_token: Annotated[str | None, Cookie()] = None  # Get the refresh token from the HTTP-only cookie
-):
-    # Check if the refresh token is valid
-    if refresh_token is None:
-        raise HTTPException(status_code=401, detail="Refresh token is missing")
+# @router.post("/web/refresh_token")
+# async def refresh_token(
+#     *, 
+#     refresh_token: Annotated[str | None, Cookie()] = None  # Get the refresh token from the HTTP-only cookie
+# ):
+#     # Check if the refresh token is valid
+#     if refresh_token is None:
+#         raise HTTPException(status_code=401, detail="Refresh token is missing")
 
-    # Optionally validate the refresh token here
-    # If validation passes, create new tokens
-    token_data = {"id": 2, "profile_id": 2}
-    access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
+#     # Optionally validate the refresh token here
+#     # If validation passes, create new tokens
+#     token_data = {"id": 2, "profile_id": 2}
+#     access_token=create_token(token_data, timedelta(minutes=token_settings.access_token_expire_minutes)),
 
-    return JSONResponse(content={"access_token": access_token})
+#     return JSONResponse(content={"access_token": access_token})
 
 
 
