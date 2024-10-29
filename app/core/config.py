@@ -11,8 +11,8 @@ class DBSettings(BaseSettings):
 class TokenSettings(BaseSettings):
     secret_key : str = "637d7ae22429851c08a0846ba4a6b908d693585e949ceacf60316eeb2d539158"
     algorithm : str = "HS256"
-    access_token_expire_minutes : int = 30
-    refresh_token_expire_minutes : int = 24 * 7 *60
+    access_token_expire_minutes : int = 1
+    refresh_token_expire_minutes : int = 3
 
 class EmailSettings(BaseSettings):
     email : str = ""
