@@ -96,7 +96,7 @@ async def root(req: Request):
         "message": f"Hello from server {req.url.scheme}://{req.url.hostname}:{req.url.port} !!!"
     }
 
-@app.get("/logs")
+@app.get("/api/v1/logs")
 async def logs():
     file_path = "logfile.log"
     return FileResponse(path=file_path, filename="logfile.log")
