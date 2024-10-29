@@ -42,10 +42,11 @@ class ProductsController(BaseController):
 
         return mapped_products
 
-    async def get_products(self,ref):
+    async def get_products(self, ref):
         if not ref:
             return await super().get_and_join_items(self.statement, self.map_to_product_read)
-        return await super().get_and_join_items(self.statement.filter(Product.reference.ilike(f"%{ref}%")), self.map_to_product_read)
+        return await super().get_and_join_items(self.statement.filter(Product.reference.ilike(f"%{ref}%")),
+                                                self.map_to_product_read)
 
     async def get_product_with_details_by_id(self, product_id):
         res = await super().get_and_join_items(self.statement.where(Product.id == product_id), self.map_to_product_read,
@@ -60,29 +61,24 @@ class ProductsController(BaseController):
     async def get_product_by_reference_without_details(self, ref, ):
         return await super().get_first_item_with_condition(Product.reference, ref)
 
-
     async def get_products_by_references(self, product_refs: list[str]):
         return await super().get_and_join_items(self.statement.where(Product.reference.in_(product_refs)),
                                                 self.map_to_product_read)
 
-
     async def get_product_by_id(self, product_id):
         return await self.get_product_with_details_by_id(product_id)
 
-
     async def create_product(self, product_create: ProductCreate, image):
         product_m = await add_image_to_entity(product_create, self.session, image)
-        if not product.image_id:
-            product.image_id = 2
+        if not product_m.image_id:
+            product_m.image_id = 2
         db_product = await super().create_item(product_m)
         return await self.get_product_with_details_by_id(db_product.id)
-
 
     async def update_product(self, product_update: ProductUpdate, product_id: int, image):
         product_m = await add_image_to_entity(product_update, self.session, image)
         db_product = await super().update_item(updated_item=product_m, item_id=product_id)
         return await self.get_product_with_details_by_id(db_product.id)
-
 
     async def update_product_quantity(self, product_id, quantity):
         self.session.exec(
@@ -117,7 +113,6 @@ class ProductsController(BaseController):
 
         self.session.bulk_update_mappings(Product, bulk_updates)
         self.session.commit()
-
 
     async def delete_product(self, product_id: int):
         await super().delete_item(item_id=product_id)

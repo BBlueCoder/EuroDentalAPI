@@ -126,32 +126,28 @@ class TasksController(BaseController):
 
         return task_details
 
+    async def create_task(self, task: TaskCreate):
+        if not task.create_by:
+            task.create_by = self.current_user.id
+        if task.technician_id:
+            task.status = Status.in_progress.value
 
-async def create_task(self, task: TaskCreate):
-    if not task.create_by:
-        task.create_by = self.current_user.id
-    if task.technician_id:
-        task.status = Status.in_progress.value
+        db_task = await super().create_item(task)
+        return await self.get_task_with_details_by_id(db_task.id)
 
-    db_task = await super().create_item(task)
-    return await self.get_task_with_details_by_id(db_task.id)
+    async def assign_tasks_to_technician(self, tasks: TasksAssignment):
+        for task_id in tasks.task_ids:
+            self.session.exec(
+                update(Task)
+                .where(Task.id == task_id)
+                .values(technician_id=tasks.technician_id, status=Status.in_progress)
+            )
 
+        self.session.commit()
 
-async def assign_tasks_to_technician(self, tasks: TasksAssignment):
-    for task_id in tasks.task_ids:
-        self.session.exec(
-            update(Task)
-            .where(Task.id == task_id)
-            .values(technician_id=tasks.technician_id, status=Status.in_progress)
-        )
+    async def update_task(self, task: TaskUpdate, task_id: int):
+        db_task = await super().update_item(updated_item=task, item_id=task_id)
+        return await self.get_task_with_details_by_id(db_task.id)
 
-    self.session.commit()
-
-
-async def update_task(self, task: TaskUpdate, task_id: int):
-    db_task = await super().update_item(updated_item=task, item_id=task_id)
-    return await self.get_task_with_details_by_id(db_task.id)
-
-
-async def delete_task(self, task_id: int):
-    await super().delete_item(item_id=task_id)
+    async def delete_task(self, task_id: int):
+        await super().delete_item(item_id=task_id)
