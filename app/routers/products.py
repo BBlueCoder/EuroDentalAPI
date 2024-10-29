@@ -22,9 +22,9 @@ router = APIRouter(prefix=f"{global_prefix}/products", tags=["products"])
 
 
 @router.get("/", response_model=list[ProductRead])
-async def get_all_products(*, session: Session = Depends(get_session), req: Request,user : User = Depends(authorize)):
+async def get_all_products(*, session: Session = Depends(get_session), req: Request,user : User = Depends(authorize),ref : str | None = None):
     controller = ProductsController(session,req)
-    return await controller.get_products()
+    return await controller.get_products(ref)
 
 
 @router.get("/{product_id}", response_model=ProductRead)
