@@ -7,7 +7,7 @@ from app.controllers.products_controller import ProductsController
 from app.controllers.task_products_controller import TaskProductController
 from app.controllers.users_controller import UsersController
 from app.models.clients import Client
-from app.models.task_products import TaskProduct
+from app.models.task_products import TaskProduct, TaskProductsDetails
 from app.models.tasks import Task, TaskCreate, TaskUpdate, TaskRead, TaskFilterParams, Status, TaskDetails
 from app.models.tasks_assignment import TasksAssignment
 from app.models.users import User
@@ -24,7 +24,7 @@ class TasksController(BaseController):
         # .join(Product, TaskProduct.product_reference == Product.reference, isouter=True)
     )
 
-    def __init__(self, session: Session, req = None, current_user : User = None):
+    def __init__(self, session: Session, req=None, current_user: User = None):
         super().__init__(session, Task)
         self.req = req
         self.current_user = current_user
@@ -63,7 +63,7 @@ class TasksController(BaseController):
     def map_to_task_details(self, tasks):
         mapped_results: list[TaskDetails] = []
 
-        client_controller = ClientsController(self.session,self.req)
+        client_controller = ClientsController(self.session, self.req)
 
         for task, client, user in tasks:
             task_details = TaskDetails(**task.model_dump())
@@ -78,9 +78,7 @@ class TasksController(BaseController):
 
         return mapped_results
 
-
-
-    async def get_tasks(self, filter_params : TaskFilterParams):
+    async def get_tasks(self, filter_params: TaskFilterParams):
         _statement = self.statement
         if filter_params.exact_date:
             _statement = self.statement.where(Task.task_date == filter_params.exact_date)
@@ -105,50 +103,51 @@ class TasksController(BaseController):
 
         _statement = _statement.order_by(sort_by)
 
-        return await super().get_and_join_items(_statement,self.map_to_task_read)
+        return await super().get_and_join_items(_statement, self.map_to_task_read)
 
     async def get_task_with_details_by_id(self, task_id):
-        res = await super().get_and_join_items(self.statement.where(Task.id == task_id),self.map_to_task_read,is_first=True)
+        res = await super().get_and_join_items(self.statement.where(Task.id == task_id), self.map_to_task_read,
+                                               is_first=True)
         return res[0]
 
-    async def get_task_by_id(self,task_id):
+    async def get_task_by_id(self, task_id):
         return await self.get_task_with_details_by_id(task_id)
 
     async def get_task_all_details(self, task_id):
-        task_details : TaskDetails = (await super().get_and_join_items(self.statement.where(Task.id == task_id),self.map_to_task_details, is_first=True))[0]
+        task_details: TaskDetails = (
+            await super().get_and_join_items(self.statement.where(Task.id == task_id), self.map_to_task_details,
+                                             is_first=True))[0]
         task_product_controller = TaskProductController(self.session)
-        products_controller = ProductsController(self.session,self.req)
 
-        all_products_in_task : list[TaskProduct] = await task_product_controller.get_all_task_products_for_a_task(task_id)
-        if all_products_in_task:
-            products_refs = [p.product_reference for p in all_products_in_task]
-            products = await products_controller.get_products_by_references(products_refs)
-            task_details.products = products
+        all_products_in_task: list[
+            TaskProductsDetails] = await task_product_controller.get_all_task_products_for_a_task(task_id, self.req)
+
+        task_details.products = all_products_in_task
 
         return task_details
 
-    async def create_task(self, task : TaskCreate):
+    async def create_task(self, task: TaskCreate):
         if not task.create_by:
             task.create_by = self.current_user.id
         if task.technician_id:
             task.status = Status.in_progress.value
-            
+
         db_task = await super().create_item(task)
         return await self.get_task_with_details_by_id(db_task.id)
 
-    async def assign_tasks_to_technician(self, tasks : TasksAssignment):
+    async def assign_tasks_to_technician(self, tasks: TasksAssignment):
         for task_id in tasks.task_ids:
             self.session.exec(
                 update(Task)
                 .where(Task.id == task_id)
-                .values(technician_id=tasks.technician_id, status = Status.in_progress)
+                .values(technician_id=tasks.technician_id, status=Status.in_progress)
             )
 
         self.session.commit()
 
-    async def update_task(self, task : TaskUpdate, task_id : int):
+    async def update_task(self, task: TaskUpdate, task_id: int):
         db_task = await super().update_item(updated_item=task, item_id=task_id)
         return await self.get_task_with_details_by_id(db_task.id)
 
-    async def delete_task(self, task_id : int):
+    async def delete_task(self, task_id: int):
         await super().delete_item(item_id=task_id)

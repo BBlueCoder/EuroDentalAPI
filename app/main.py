@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
 from starlette.responses import FileResponse
 
+from .errors.insufficient_stock import InsufficientStock
 from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
 from .errors.password_requires_change import PasswordRequiresChange
@@ -28,6 +29,13 @@ async def integrity_error_handler(_, exc: IntegrityError):
 
 @app.exception_handler(ItemNotFound)
 async def item_not_found_error_handler(_, exc: ItemNotFound):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error_detail": exc.message},
+    )
+
+@app.exception_handler(InsufficientStock)
+async def insufficient_stock_error_handler(_, exc: ItemNotFound):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error_detail": exc.message},

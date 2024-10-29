@@ -7,6 +7,7 @@ from sqlmodel import Field, SQLModel
 
 from app.models.clients import ClientRead
 from app.models.products import ProductRead
+from app.models.task_products import TaskProductsDetails
 from app.models.users import UserRead
 
 
@@ -101,7 +102,7 @@ class TaskDetails(TaskWithIDs):
     id : int
     client : ClientRead | None = None
     technician : UserRead | None = None
-    products : list[ProductRead] = []
+    products : list[TaskProductsDetails] = []
 
 
 class TaskFilterParams(BaseModel):
