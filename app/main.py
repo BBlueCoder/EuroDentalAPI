@@ -67,7 +67,7 @@ async def login_credentials_invalid_handler(req: Request, exc: LoginCredentialsI
     return JSONResponse(status_code=exc.status_code, content={"error_detail": exc.message})
 
 
-origins = ["*"]
+origins = ["http://localhost:4200"]
 
 app.add_middleware(
     CORSMiddleware,
