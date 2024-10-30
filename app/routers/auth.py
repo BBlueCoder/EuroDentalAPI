@@ -56,14 +56,14 @@ async def authorize(token: str = Depends(oauth_scheme), session : Session = Depe
         data = jwt.decode(token, token_settings.secret_key, algorithms=[token_settings.algorithm])
         user_id : int = data.get("id")
         if not user_id:
-            raise LoginCredentialsInvalid(message="Invalid Token")
+            raise LoginCredentialsInvalid(message="Invalid Token", status_code= 401)
         user_controller = UsersController(session)
         user = await user_controller.get_user_by_id(user_id)
         if not user or user.is_blocked:
-            raise LoginCredentialsInvalid(message="Invalid Token")
+            raise LoginCredentialsInvalid(message="Invalid Token", status_code= 401)
         return user
     except InvalidTokenError:
-        raise LoginCredentialsInvalid(message="Invalid Token")
+        raise LoginCredentialsInvalid(message="Invalid Token", status_code= 401)
 
 @router.post("/login", response_model=Tokens)
 async def login(
