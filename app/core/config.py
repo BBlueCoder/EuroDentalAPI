@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 # database settings
 class DBSettings(BaseSettings):
-    db_name: str = ""
+    db_name: str = "eurodental_test"
     db_user: str = ""
     db_host: str = ""
     db_password: str = ""
