@@ -62,8 +62,6 @@ class TaskProductController(BaseController):
         current_quantity = db_task_product.quantity
         diff = current_quantity - task_product.quantity 
 
-
-
         product_controller = ProductsController(self.session)
         #if the new quantity is greater then the old
         if diff > 0:
@@ -77,7 +75,6 @@ class TaskProductController(BaseController):
             else:
                 #update the stock quantity
                 await product_controller.update_stock(task_product.product_reference, diff)
-
 
         #update the task product
         self.session.exec(
