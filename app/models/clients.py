@@ -15,7 +15,7 @@ class ClientBase(SQLModel):
         None, max_length=100, description="Last name, up to 100 characters"
     )
     phone_number: str | None = Field(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        None, description="Phone number, 10 digits"
     )
     address: str | None = Field(None, description="Address of the client")
     city: str | None = Field(None, description="City where the client resides")
@@ -57,7 +57,7 @@ def parse_client_from_date_to_client_create(
         None, max_length=100, description="Last name, up to 100 characters"
     ),
     phone_number: str | None = Form(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        None, description="Phone number, 10 digits"
     ),
     address: str | None = Form(None, description="Address of the client"),
     city: str | None = Form(None, description="City where the client resides"),
@@ -87,7 +87,7 @@ def parse_client_from_date_to_client_update(
         None, max_length=100, description="Last name, up to 100 characters"
     ),
     phone_number: str | None = Form(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        None, description="Phone number, 10 digits"
     ),
     address: str | None = Form(None, description="Address of the client"),
     city: str | None = Form(None, description="City where the client resides"),
