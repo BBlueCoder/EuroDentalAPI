@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from app.controllers.tasks_controller import TasksController
 from app.db.dependencies import get_session
-from app.models.tasks import (Task, TaskCreate, TaskFilterParams, TaskRead,
+from app.models.tasks import ( TaskCreate, TaskFilterParams, TaskRead,
                               TaskUpdate, TaskDetails)
 from app.models.tasks_assignment import TasksAssignment
 from app.models.users import User
@@ -18,10 +18,11 @@ async def get_all_tasks(
         *,
         session: Session = Depends(get_session),
         req: Request,
-        filter_params: TaskFilterParams = Depends()
+        filter_params: TaskFilterParams = Depends(),
+        technician_id : int | None = None
         , user: User = Depends(authorize)):
     controller = TasksController(session,req)
-    return await controller.get_tasks(filter_params)
+    return await controller.get_tasks(filter_params,technician_id)
 
 
 @router.get("/{task_id}", response_model=TaskRead)

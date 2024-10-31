@@ -78,7 +78,7 @@ class TasksController(BaseController):
 
         return mapped_results
 
-    async def get_tasks(self, filter_params: TaskFilterParams):
+    async def get_tasks(self, filter_params: TaskFilterParams, technician_id):
         _statement = self.statement
         if filter_params.exact_date:
             _statement = self.statement.where(Task.task_date == filter_params.exact_date)
@@ -89,6 +89,9 @@ class TasksController(BaseController):
                     Task.task_date <= filter_params.date_range_end,
                 )
             )
+
+        if technician_id:
+            _statement = _statement.where(Task.technician_id == technician_id)
 
         order_by = (
             Task.task_date
@@ -102,6 +105,8 @@ class TasksController(BaseController):
         sort_by = desc(order_by) if filter_params.sort == "desc" else asc(order_by)
 
         _statement = _statement.order_by(sort_by)
+
+
 
         return await super().get_and_join_items(_statement, self.map_to_task_read)
 
