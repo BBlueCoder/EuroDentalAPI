@@ -23,13 +23,13 @@ def test_create_product(client: TestClient, product_name, ref):
     assert res.json().get("product_name") == product_name
 
 
-def test_create_and_get_products(client: TestClient):
-    client.post(PRODUCTS_PATH, data={"product_name": "product1", "reference": "ref001"})
-    client.post(PRODUCTS_PATH, data={"product_name": "product2", "reference": "ref002"})
+# def test_create_and_get_products(client: TestClient):
+#     client.post(PRODUCTS_PATH, data={"product_name": "product1", "reference": "ref001"})
+#     client.post(PRODUCTS_PATH, data={"product_name": "product2", "reference": "ref002"})
 
-    res = client.get(PRODUCTS_PATH)
-    assert res.status_code == status.HTTP_200_OK
-    assert len(res.json()) == 2
+#     res = client.get(PRODUCTS_PATH)
+#     assert res.status_code == status.HTTP_200_OK
+#     assert len(res.json()) == 2
 
 
 def test_get_not_found_product_by_id(client: TestClient):

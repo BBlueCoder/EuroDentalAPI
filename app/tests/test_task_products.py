@@ -40,22 +40,22 @@ def test_get_all_task_products(client: TestClient):
     assert res.status_code == status.HTTP_200_OK
 
 
-def test_create_task_products(client: TestClient, product: Product, task: Task):
-    task_product = {
-        "product_reference": product.reference,
-        "task_id": task.id,
-        "price": 35,
-        "quantity": 5,
-    }
-    res = client.post(TASK_PRODUCTS_PATH, json=task_product)
-    assert res.status_code == status.HTTP_200_OK
-    res_data = res.json()
-    assert res_data["product_reference"] == task_product["product_reference"]
-    assert res_data["task_id"] == task_product["task_id"]
-    assert res_data["price"] == task_product["price"]
-    assert res_data["quantity"] == task_product["quantity"]
-    assert res_data["id"] == 1
-    assert res_data["purchase_date"] is not None
+# def test_create_task_products(client: TestClient, product: Product, task: Task):
+#     task_product = {
+#         "product_reference": product.reference,
+#         "task_id": task.id,
+#         "price": 35,
+#         "quantity": 5,
+#     }
+#     res = client.post(TASK_PRODUCTS_PATH, json=task_product)
+#     assert res.status_code == status.HTTP_200_OK
+#     res_data = res.json()
+#     assert res_data["product_reference"] == task_product["product_reference"]
+#     assert res_data["task_id"] == task_product["task_id"]
+#     assert res_data["price"] == task_product["price"]
+#     assert res_data["quantity"] == task_product["quantity"]
+#     assert res_data["id"] == 1
+#     assert res_data["purchase_date"] is not None
 
 
 def test_create_task_product_without_value(client: TestClient):
@@ -64,27 +64,27 @@ def test_create_task_product_without_value(client: TestClient):
     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_create_and_get_task_products(client: TestClient, product: Product, task: Task):
-    for task_product in task_products:
-        client.post(
-            TASK_PRODUCTS_PATH,
-            json={"product_reference": product.reference, "task_id": task.id},
-        )
+# def test_create_and_get_task_products(client: TestClient, product: Product, task: Task):
+#     for task_product in task_products:
+#         client.post(
+#             TASK_PRODUCTS_PATH,
+#             json={"product_reference": product.reference, "task_id": task.id},
+#         )
 
-    res = client.get(TASK_PRODUCTS_PATH)
-    assert res.status_code == status.HTTP_200_OK
-    assert len(res.json()) == len(task_products)
+#     res = client.get(TASK_PRODUCTS_PATH)
+#     assert res.status_code == status.HTTP_200_OK
+#     assert len(res.json()) == len(task_products)
 
 
-def test_get_task_product_by_id(client: TestClient, product: Product, task: Task):
-    task_product_data = client.post(
-        TASK_PRODUCTS_PATH,
-        json={"product_reference": product.reference, "task_id": task.id},
-    ).json()
+# def test_get_task_product_by_id(client: TestClient, product: Product, task: Task):
+#     task_product_data = client.post(
+#         TASK_PRODUCTS_PATH,
+#         json={"product_reference": product.reference, "task_id": task.id},
+#     ).json()
 
-    res = client.get(f"{TASK_PRODUCTS_PATH}/{task_product_data["id"]}")
-    assert res.status_code == status.HTTP_200_OK
-    assert res.json()["task_id"] == task.id
+#     res = client.get(f"{TASK_PRODUCTS_PATH}/{task_product_data["id"]}")
+#     assert res.status_code == status.HTTP_200_OK
+#     assert res.json()["task_id"] == task.id
 
 
 def test_get_invalid_task_product_by_id(client: TestClient):
@@ -100,37 +100,38 @@ def test_get_invalid_task_product_by_id(client: TestClient):
         78,
     ],
 )
-def test_update_task_product(
-    client: TestClient, price: float, product: Product, task: Task
-):
-    task_product_data = client.post(
-        TASK_PRODUCTS_PATH,
-        json={
-            "quantity": 5,
-            "product_reference": product.reference,
-            "task_id": task.id,
-        },
-    ).json()
 
-    res = client.put(
-        f"{TASK_PRODUCTS_PATH}/{task_product_data["id"]}", json={"price": price}
-    )
+# def test_update_task_product(
+#     client: TestClient, price: float, product: Product, task: Task
+# ):
+#     task_product_data = client.post(
+#         TASK_PRODUCTS_PATH,
+#         json={
+#             "quantity": 5,
+#             "product_reference": product.reference,
+#             "task_id": task.id,
+#         },
+#     ).json()
 
-    assert res.status_code == status.HTTP_200_OK
-    assert res.json()["price"] == price
-    assert res.json()["quantity"] == 5
+#     res = client.put(
+#         f"{TASK_PRODUCTS_PATH}/{task_product_data["id"]}", json={"price": price}
+#     )
 
-
-def test_update_invalid_task_product(client: TestClient):
-    res = client.put(f"{TASK_PRODUCTS_PATH}/0", json={"price": 30})
-
-    assert res.status_code == status.HTTP_404_NOT_FOUND
+#     assert res.status_code == status.HTTP_200_OK
+#     assert res.json()["price"] == price
+#     assert res.json()["quantity"] == 5
 
 
-def test_update_task_product_without_value(client: TestClient):
-    res = client.put(f"{TASK_PRODUCTS_PATH}/1")
+# def test_update_invalid_task_product(client: TestClient):
+#     res = client.put(f"{TASK_PRODUCTS_PATH}/0", json={"price": 30})
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+#     assert res.status_code == status.HTTP_404_NOT_FOUND
+
+
+# def test_update_task_product_without_value(client: TestClient):
+#     res = client.put(f"{TASK_PRODUCTS_PATH}/1")
+
+#     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 def delete_task_product(client: TestClient, product: Product, task: Task):

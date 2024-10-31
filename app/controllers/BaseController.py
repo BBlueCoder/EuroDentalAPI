@@ -1,7 +1,7 @@
 from typing import TypeVar, Type
 
 from fastapi import HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, asc, select
 
 from app.errors.item_not_found import ItemNotFound
 from app.models.brands import Brand
@@ -41,7 +41,7 @@ class BaseController:
         return item
 
     async def get_items_with_condition(self,condition, condition_val):
-        return self.session.exec(select(self.entity).where(condition == condition_val)).all()
+        return self.session.exec(select(self.entity).where(condition == condition_val).order_by(asc(self.entity.id))).all()
 
     async def get_and_join_items(self, join_statement, map_fun,is_first : bool = False):
         res = self.session.exec(join_statement).all()

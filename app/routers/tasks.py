@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from app.controllers.tasks_controller import TasksController
 from app.db.dependencies import get_session
-from app.models.tasks import (Task, TaskCreate, TaskFilterParams, TaskRead,
+from app.models.tasks import ( TaskCreate, TaskFilterParams, TaskRead,
                               TaskUpdate, TaskDetails)
 from app.models.tasks_assignment import TasksAssignment
 from app.models.users import User

@@ -116,3 +116,11 @@ class ProductsController(BaseController):
 
     async def delete_product(self, product_id: int):
         await super().delete_item(item_id=product_id)
+
+    async def update_stock(self, product_ref:str, stock:int):
+        self.session.exec(
+            update(Product)
+            .where(Product.reference == product_ref)
+            .values(stock_quantity=Product.stock_quantity + stock)
+        )
+        self.session.commit()
