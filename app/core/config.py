@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 # database settings
 class DBSettings(BaseSettings):
-    db_name: str = "eurodental"
+    db_name: str = "eurodental_test"
     db_user: str = "api_app"
     db_host: str = "ec2-35-180-66-24.eu-west-3.compute.amazonaws.com"
     db_password: str = "0dental0"

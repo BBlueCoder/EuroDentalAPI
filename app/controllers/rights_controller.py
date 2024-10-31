@@ -18,7 +18,8 @@ class RightController(BaseController):
         super().__init__(session, Right, ItemNotFound("Right Not Found"))
 
     async def get_rights(self):
-        return await super().get_and_join_items(self.statement,self.map_to_rights_read)
+        statement = self.statement.where(Profile.id != 1)
+        return await super().get_and_join_items(statement,self.map_to_rights_read)
     
     async def get_right_by_Profile_id(self,Profile_id):
         statement = self.statement.where(Profile.id == Profile_id)

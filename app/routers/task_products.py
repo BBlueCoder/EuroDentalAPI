@@ -34,7 +34,7 @@ async def create_task_products(
     return await controller.create_task_product(task_products)
 
 
-@router.put("/{task_products_id}", response_model=TaskProductRead)
+@router.put("/{task_products_id}")
 async def update_task_products(
         *,
         session: Session = Depends(get_session),
@@ -42,7 +42,8 @@ async def update_task_products(
         task_products_id: int
         , user: User = Depends(authorize)):
     controller = TaskProductController(session)
-    return await controller.update_task_product(task_products, task_products_id)
+    await controller.update_task_product(task_products, task_products_id)
+    return "prodact has been updated successfully"
 
 
 @router.put("/quantity/{task_products_id}", response_model=TaskProductRead)

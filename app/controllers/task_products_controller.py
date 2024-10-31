@@ -37,10 +37,57 @@ class TaskProductController(BaseController):
         return mapped_result
 
     async def create_task_product(self, task_product : TaskProductCreate):
+
+        #check if the product already exists in the task
+        task_products : list[TaskProduct] = await super().get_items_with_condition(TaskProduct.task_id, task_product.task_id)
+        for product in task_products:
+            if product.product_reference == task_product.product_reference:
+                raise InsufficientStock(message="product already exists in this task")
+            
+        #check if there enough stock quantity of this product
+        product_controller = ProductsController(self.session)
+        product  : Product = await product_controller.get_product_by_reference_without_details(task_product.product_reference)
+        if product.stock_quantity - task_product.quantity < 0:
+            raise InsufficientStock()
+
+        #update the stock quantity
+        await product_controller.update_stock(task_product.product_reference, -task_product.quantity)
+
         return await super().create_item(task_product)
+    
 
     async def update_task_product(self, task_product : TaskProductUpdate, task_product_id : int):
-        return await super().update_item(updated_item=task_product, item_id=task_product_id)
+
+        db_task_product = await self.get_task_product_by_id(task_product_id)
+        current_quantity = db_task_product.quantity
+        diff = current_quantity - task_product.quantity 
+
+
+
+        product_controller = ProductsController(self.session)
+        #if the new quantity is greater then the old
+        if diff > 0:
+            #update the stock quantity
+            await product_controller.update_stock(task_product.product_reference, diff)
+        #if the old quantity is greater then the new check if the is enough quantity in the stock
+        else :
+            product  : Product = await product_controller.get_product_by_reference_without_details(task_product.product_reference)
+            if product.stock_quantity + diff < 0:
+                raise InsufficientStock()
+            else:
+                #update the stock quantity
+                await product_controller.update_stock(task_product.product_reference, diff)
+
+
+        #update the task product
+        self.session.exec(
+            update(TaskProduct)
+            .where(TaskProduct.id == task_product_id)
+            .values(quantity = task_product.quantity)
+            .values(price = task_product.price)
+        )
+        self.session.commit()
+
 
     async def update_product_quantity(self, task_product_id, new_quantity):
         task_product = await self.get_task_product_by_id(task_product_id)
