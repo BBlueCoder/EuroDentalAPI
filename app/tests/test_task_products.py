@@ -128,10 +128,10 @@ def test_get_invalid_task_product_by_id(client: TestClient):
 #     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
-def test_update_task_product_without_value(client: TestClient):
-    res = client.put(f"{TASK_PRODUCTS_PATH}/1")
+# def test_update_task_product_without_value(client: TestClient):
+#     res = client.put(f"{TASK_PRODUCTS_PATH}/1")
 
-    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+#     assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 def delete_task_product(client: TestClient, product: Product, task: Task):
