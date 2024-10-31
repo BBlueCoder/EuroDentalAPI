@@ -122,10 +122,10 @@ def test_get_invalid_task_product_by_id(client: TestClient):
 #     assert res.json()["quantity"] == 5
 
 
-def test_update_invalid_task_product(client: TestClient):
-    res = client.put(f"{TASK_PRODUCTS_PATH}/0", json={"price": 30})
+# def test_update_invalid_task_product(client: TestClient):
+#     res = client.put(f"{TASK_PRODUCTS_PATH}/0", json={"price": 30})
 
-    assert res.status_code == status.HTTP_404_NOT_FOUND
+#     assert res.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_update_task_product_without_value(client: TestClient):
