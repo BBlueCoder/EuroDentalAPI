@@ -13,7 +13,7 @@ class UserBase(SQLModel):
         None, max_length=100, description="Last name, up to 100 characters"
     )
     phone_number: str | None = Field(
-        None, min_length=10, max_length=10, description="Phone number, 10 digits"
+        None, description="Phone number, 10 digits"
     )
     is_blocked: bool | None = Field(
         False, description="Indicates if the user is blocked"
@@ -113,7 +113,7 @@ def parse_user_from_data_to_user_create(
             None, max_length=100, description="Last name, up to 100 characters"
         ),
         phone_number: str | None = Form(
-            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+            None, description="Phone number, 10 digits"
         ),
         is_blocked: bool | None = Form(
             False, description="Indicates if the user is blocked"
@@ -150,7 +150,7 @@ def parse_user_from_data_to_user_update(
             None, max_length=255, description="Password, up to 255 characters"
         ),
         phone_number: str | None = Form(
-            None, min_length=10, max_length=10, description="Phone number, 10 digits"
+            None, description="Phone number, 10 digits"
         ),
         is_blocked: bool | None = Form(
             None, description="Indicates if the user is blocked"
