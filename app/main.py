@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -6,12 +8,13 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.requests import Request
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, HTMLResponse
 
 from .errors.insufficient_stock import InsufficientStock
 from .errors.item_not_found import ItemNotFound
 from .errors.login_credentials_invalid import LoginCredentialsInvalid
 from .errors.password_requires_change import PasswordRequiresChange
+from .pages.expired import expired_html
 from .routers import (auth, brands, categories, images, products, rights,
                       profiles, sub_categories, task_products, tasks, users, clients)
 
@@ -97,6 +100,9 @@ app.include_router(tasks.router)
 app.include_router(task_products.router)
 app.include_router(rights.router)
 
+@app.get("/expired",response_class=HTMLResponse)
+async def expired_page():
+    return HTMLResponse(content=expired_html)
 
 @app.get("/")
 async def root(req: Request):

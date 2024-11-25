@@ -57,7 +57,7 @@ jobs:
             rm -f .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-            echo "DB_NAME=${{ secrets.DB_NAME_MAIN }}" >> .env
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
             echo "DB_HOST=${{ secrets.HOST_DNS }}" >> .env
             echo "EMAIL=${{ secrets.SMTP_EMAIL }}" >> .env
             echo "E_PASSWORD=${{ secrets.E_PASSWORD }}" >> .env
