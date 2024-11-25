@@ -6,8 +6,6 @@ from starlette.responses import FileResponse
 
 from app.db.dependencies import get_session
 from app.models.images import Image
-from app.models.users import User
-from app.routers.auth import authorize
 from app.utils.global_utils import global_prefix
 
 router = APIRouter(prefix=f"{global_prefix}/images", tags=["images"])
